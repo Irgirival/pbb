@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPBB Desa Kasomalang Kulon</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --hijau: #1a7a4a;
+    --hijau-muda: #23a86a;
+    --hijau-gelap: #0f4f30;
+    --emas: #e8a020;
+    --emas-muda: #f5c842;
+    --putih: #ffffff;
+    --abu-terang: #f4f7f5;
+    --abu-medium: #e8ede9;
+    --abu-gelap: #6b7a6e;
+    --teks-utama: #1a2e22;
+    --teks-sekunder: #4a6054;
+    --merah: #e03c3c;
+    --merah-muda: #fff0f0;
+    --biru: #2563eb;
+    --biru-muda: #eff6ff;
+    --kuning: #f59e0b;
+    --kuning-muda: #fffbeb;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--abu-terang); color: var(--teks-utama); overflow-x: hidden; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--abu-medium); }
+  ::-webkit-scrollbar-thumb { background: var(--hijau-muda); border-radius: 3px; }
+
+  /* ===== LOADING SCREEN ===== */
+  #loading-screen {
+    position: fixed; inset: 0; background: var(--hijau-gelap);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.6s ease;
+  }
+  .loading-logo { font-size: 3rem; font-weight: 800; color: var(--putih); letter-spacing: -1px; }
+  .loading-logo span { color: var(--emas-muda); }
+  .loading-sub { color: rgba(255,255,255,0.6); margin-top: 8px; font-size: 0.9rem; }
+  .loading-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; margin-top: 32px; overflow: hidden; }
+  .loading-fill { height: 100%; background: var(--emas-muda); border-radius: 2px; animation: loadfill 1.8s ease forwards; }
+  @keyframes loadfill { from{width:0} to{width:100%} }
+
+  /* ===== NAVBAR ===== */
+  #navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--abu-medium);
+    padding: 0 24px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .nav-brand-icon {
+    width: 40px; height: 40px; background: var(--hijau);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 1rem;
+  }
+  .nav-brand-text { font-weight: 700; font-size: 1rem; color: var(--teks-utama); line-height: 1.2; }
+  .nav-brand-text small { font-weight: 400; font-size: 0.75rem; color: var(--abu-gelap); display: block; }
+  .nav-actions { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: inherit; }
+  .btn-ghost { background: transparent; color: var(--teks-sekunder); }
+  .btn-ghost:hover { background: var(--abu-medium); color: var(--teks-utama); }
+  .btn-primary { background: var(--hijau); color: white; }
+  .btn-primary:hover { background: var(--hijau-gelap); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--hijau); color: var(--hijau); }
+  .btn-outline:hover { background: var(--hijau); color: white; }
+  .btn-danger { background: var(--merah); color: white; }
+  .btn-danger:hover { background: #c03030; }
+  .btn-success { background: var(--hijau-muda); color: white; }
+  .btn-success:hover { background: var(--hijau); }
+  .btn-sm { padding: 5px 12px; font-size: 0.8rem; }
+  .btn-lg { padding: 12px 28px; font-size: 1rem; }
+
+  /* ===== PAGES ===== */
+  .page { display: none; min-height: 100vh; padding-top: 64px; }
+  .page.active { display: block; }
+
+  /* ===== HERO / PUBLIC DASHBOARD ===== */
+  #page-public {
+    background: linear-gradient(135deg, var(--hijau-gelap) 0%, var(--hijau) 50%, #1d8c52 100%);
+    min-height: 100vh;
+  }
+  .hero-section {
+    padding: 60px 24px 40px;
+    text-align: center; color: white;
+    position: relative; overflow: hidden;
+  }
+  .hero-section::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 16px; border-radius: 100px; font-size: 0.8rem; margin-bottom: 24px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-badge::before { content: '🏛️'; }
+  .hero-title { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; line-height: 1.15; margin-bottom: 12px; }
+  .hero-title span { color: var(--emas-muda); }
+  .hero-sub { font-size: 1rem; opacity: 0.8; max-width: 500px; margin: 0 auto 40px; line-height: 1.6; }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto 40px; padding: 0 16px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius);
+    padding: 20px 16px; text-align: center; color: white;
+    transition: transform 0.2s, background 0.2s;
+    animation: fadeInUp 0.6s ease both;
+  }
+  .stat-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.15); }
+  .stat-card-value { font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--emas-muda); }
+  .stat-card-label { font-size: 0.75rem; opacity: 0.75; margin-top: 4px; }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Public Content Area */
+  .public-content { background: var(--abu-terang); padding: 40px 24px; }
+  .section-title { font-size: 1.3rem; font-weight: 700; color: var(--teks-utama); margin-bottom: 6px; }
+  .section-sub { font-size: 0.875rem; color: var(--abu-gelap); margin-bottom: 24px; }
+
+  /* Analytics Grid */
+  .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1100px; margin: 0 auto 32px; }
+  @media(max-width:768px){.analytics-grid{grid-template-columns:1fr}}
+  .chart-card {
+    background: white; border-radius: var(--radius-lg); padding: 24px;
+    box-shadow: var(--shadow-md); border: 1px solid var(--abu-medium);
+  }
+  .chart-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .chart-card p { font-size: 0.8rem; color: var(--abu-gelap); margin-bottom: 20px; }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* Dusun Table */
+  .dusun-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto 40px; }
+  .dusun-card {
+    background: white; border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--abu-medium);
+    border-left: 4px solid var(--hijau);
+  }
+  .dusun-card h4 { font-weight: 700; font-size: 0.95rem; margin-bottom: 12px; color: var(--hijau-gelap); }
+  .dusun-stat { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.82rem; }
+  .dusun-stat label { color: var(--abu-gelap); }
+  .dusun-stat strong { font-weight: 700; }
+  .progress-bar { height: 6px; background: var(--abu-medium); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--hijau-muda), var(--emas)); transition: width 1s ease; }
+
+  /* ===== LOGIN PAGE ===== */
+  #page-login {
+    background: linear-gradient(135deg, var(--hijau-gelap), var(--hijau));
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+  }
+  .login-card {
+    background: white; border-radius: var(--radius-lg); padding: 40px;
+    width: 100%; max-width: 420px; margin: 80px 24px 24px;
+    box-shadow: var(--shadow-lg);
+    animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes scaleIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+  .login-header { text-align: center; margin-bottom: 32px; }
+  .login-icon { width: 64px; height: 64px; background: var(--hijau); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.8rem; }
+  .login-header h2 { font-size: 1.5rem; font-weight: 800; }
+  .login-header p { color: var(--abu-gelap); font-size: 0.875rem; margin-top: 4px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--teks-sekunder); margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--abu-medium);
+    border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s; background: var(--abu-terang);
+  }
+  .form-input:focus { outline: none; border-color: var(--hijau); box-shadow: 0 0 0 3px rgba(26,122,74,0.1); background: white; }
+  .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7a6e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  .login-demo { margin-top: 20px; padding: 14px; background: var(--abu-terang); border-radius: 8px; }
+  .login-demo p { font-size: 0.75rem; color: var(--abu-gelap); margin-bottom: 8px; font-weight: 600; }
+  .demo-btn { display: inline-block; background: var(--abu-medium); border: none; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; margin: 2px; font-family: inherit; transition: background 0.2s; }
+  .demo-btn:hover { background: var(--hijau); color: white; }
+
+  /* ===== SIDEBAR LAYOUT ===== */
+  .app-layout { display: flex; min-height: calc(100vh - 64px); }
+  .sidebar {
+    width: 240px; background: white; border-right: 1px solid var(--abu-medium);
+    padding: 16px 0; position: fixed; top: 64px; bottom: 0;
+    overflow-y: auto; z-index: 50;
+    transition: transform 0.3s; box-shadow: var(--shadow-sm);
+  }
+  .sidebar-user { padding: 12px 16px 20px; border-bottom: 1px solid var(--abu-medium); margin-bottom: 8px; }
+  .sidebar-avatar { width: 40px; height: 40px; background: var(--hijau); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; margin-bottom: 8px; }
+  .sidebar-user-name { font-weight: 700; font-size: 0.9rem; }
+  .sidebar-user-role { font-size: 0.75rem; color: var(--abu-gelap); }
+  .role-badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; margin-top: 4px; }
+  .role-admin { background: rgba(232,160,32,0.15); color: var(--emas); }
+  .role-rt { background: rgba(37,99,235,0.1); color: var(--biru); }
+  .role-kolektor { background: rgba(26,122,74,0.1); color: var(--hijau); }
+
+  .nav-section { padding: 6px 12px; font-size: 0.7rem; font-weight: 700; color: var(--abu-gelap); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+    font-size: 0.875rem; font-weight: 500; color: var(--teks-sekunder);
+    cursor: pointer; transition: all 0.2s; border-radius: 0; margin: 1px 0;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--abu-terang); color: var(--teks-utama); }
+  .nav-item.active { background: rgba(26,122,74,0.08); color: var(--hijau); border-left-color: var(--hijau); font-weight: 600; }
+  .nav-item span { font-size: 1rem; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--merah); color: white; font-size: 0.65rem; padding: 1px 6px; border-radius: 100px; font-weight: 700; }
+
+  .main-content { margin-left: 240px; padding: 28px; flex: 1; min-height: calc(100vh - 64px); }
+  .content-section { display: none; }
+  .content-section.active { display: block; animation: fadeInUp 0.3s ease; }
+
+  /* ===== CARDS ===== */
+  .card { background: white; border-radius: var(--radius); border: 1px solid var(--abu-medium); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+  .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .card-title { font-size: 1.1rem; font-weight: 700; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: white; border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--abu-medium); box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: 8px;
+    position: relative; overflow: hidden;
+    animation: fadeInUp 0.4s ease both;
+  }
+  .kpi-card::after { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: 0.08; }
+  .kpi-card.green::after { background: var(--hijau); }
+  .kpi-card.yellow::after { background: var(--emas); }
+  .kpi-card.red::after { background: var(--merah); }
+  .kpi-card.blue::after { background: var(--biru); }
+  .kpi-icon { font-size: 1.4rem; }
+  .kpi-value { font-size: 1.6rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .kpi-value.green { color: var(--hijau); }
+  .kpi-value.yellow { color: var(--emas); }
+  .kpi-value.red { color: var(--merah); }
+  .kpi-value.blue { color: var(--biru); }
+  .kpi-label { font-size: 0.78rem; color: var(--abu-gelap); }
+  .kpi-trend { font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .kpi-trend.up { color: var(--hijau-muda); }
+  .kpi-trend.down { color: var(--merah); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--abu-medium); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { background: var(--abu-terang); padding: 12px 14px; text-align: left; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--teks-sekunder); border-bottom: 1px solid var(--abu-medium); white-space: nowrap; }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--abu-medium); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--abu-terang); }
+  .text-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+
+  /* STATUS BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+  .badge-lunas { background: rgba(26,122,74,0.12); color: var(--hijau); }
+  .badge-pending { background: rgba(245,158,11,0.12); color: var(--kuning); }
+  .badge-tunggakan { background: rgba(224,60,60,0.1); color: var(--merah); }
+  .badge-approved { background: rgba(37,99,235,0.1); color: var(--biru); }
+  .badge::before { content: '●'; font-size: 0.6rem; }
+
+  /* SEARCH & FILTER */
+  .filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .search-box { flex: 1; min-width: 200px; position: relative; }
+  .search-box input { width: 100%; padding: 9px 14px 9px 36px; border: 1.5px solid var(--abu-medium); border-radius: 8px; font-size: 0.875rem; font-family: inherit; background: var(--abu-terang); }
+  .search-box input:focus { outline: none; border-color: var(--hijau); background: white; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--abu-gelap); font-size: 0.9rem; }
+  .select-filter { padding: 9px 14px; border: 1.5px solid var(--abu-medium); border-radius: 8px; font-size: 0.875rem; font-family: inherit; background: var(--abu-terang); cursor: pointer; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: white; border-radius: var(--radius-lg); padding: 32px; max-width: 560px;
+    width: 100%; max-height: 90vh; overflow-y: auto;
+    transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--abu-gelap); transition: color 0.2s; }
+  .modal-close:hover { color: var(--merah); }
+
+  /* UPLOAD AREA */
+  .upload-area {
+    border: 2px dashed var(--abu-medium); border-radius: var(--radius);
+    padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .upload-area:hover, .upload-area.drag { border-color: var(--hijau); background: rgba(26,122,74,0.04); }
+  .upload-area input { display: none; }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .upload-text { font-size: 0.875rem; color: var(--abu-gelap); }
+  .upload-preview { max-width: 100%; border-radius: 8px; margin-top: 12px; display: none; }
+
+  /* TOAST */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9000; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--teks-utama); color: white; padding: 12px 18px; border-radius: 10px;
+    font-size: 0.875rem; font-weight: 500; display: flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-lg); animation: slideInToast 0.3s ease; min-width: 240px;
+    border-left: 4px solid var(--hijau-muda);
+  }
+  .toast.error { border-left-color: var(--merah); }
+  .toast.warning { border-left-color: var(--emas); }
+  @keyframes slideInToast { from{opacity:0;transform:translateX(100%)} to{opacity:1;transform:translateX(0)} }
+
+  /* ===== TUNGGAKAN ALERT ===== */
+  .tunggakan-alert {
+    background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+    border: 1px solid rgba(224,60,60,0.2); border-radius: var(--radius); padding: 16px 20px;
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px;
+  }
+  .tunggakan-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .tunggakan-text h4 { font-weight: 700; color: var(--merah); font-size: 0.9rem; }
+  .tunggakan-text p { font-size: 0.8rem; color: #c03030; margin-top: 2px; }
+
+  /* ===== YEAR TABS ===== */
+  .year-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .year-tab {
+    padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--abu-medium); background: white; color: var(--teks-sekunder);
+    transition: all 0.2s;
+  }
+  .year-tab.active { background: var(--hijau); color: white; border-color: var(--hijau); }
+  .year-tab:hover:not(.active) { border-color: var(--hijau); color: var(--hijau); }
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:768px){
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 16px; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .analytics-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  .animate-count { transition: all 0.5s; }
+  .fade-in { animation: fadeInUp 0.5s ease both; }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+  /* empty state */
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--abu-gelap); }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* info row */
+  .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--abu-medium); font-size: 0.875rem; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row label { color: var(--abu-gelap); }
+  .info-row strong { font-weight: 600; text-align: right; }
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loading-logo">SIP<span>BB</span></div>
+  <div class="loading-sub">Sistem Informasi PBB – Desa Kasomalang Kulon</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-brand" onclick="showPage('public')">
+    <div class="nav-brand-icon">PBB</div>
+    <div class="nav-brand-text">
+      SIPBB Kasomalang Kulon
+      <small>Desa Kasomalang Kulon, Subang</small>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="showPage('public')" id="btn-nav-public">🏠 Dashboard Publik</button>
+    <button class="btn btn-outline btn-sm" onclick="showPage('login')" id="btn-nav-login">Masuk</button>
+    <button class="btn btn-danger btn-sm" onclick="logout()" id="btn-nav-logout" style="display:none">Keluar</button>
+  </div>
+</nav>
+
+<!-- ===================== PAGE: PUBLIC ===================== -->
+<div class="page active" id="page-public">
+  <div class="hero-section">
+    <div class="hero-badge">Transparansi PBB Desa Kasomalang Kulon</div>
+    <h1 class="hero-title">Sistem Informasi PBB<br><span>Desa Kasomalang Kulon</span></h1>
+    <p class="hero-sub">Pantau status pembayaran Pajak Bumi dan Bangunan tahun 2020–2026 secara transparan dan real-time.</p>
+    <div class="stats-row">
+      <div class="stat-card" style="animation-delay:0.1s">
+        <div class="stat-card-value" id="pub-total-wp">1.247</div>
+        <div class="stat-card-label">Total Wajib Pajak</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.2s">
+        <div class="stat-card-value" id="pub-lunas">876</div>
+        <div class="stat-card-label">Sudah Lunas 2026</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.3s">
+        <div class="stat-card-value" id="pub-tunggakan">371</div>
+        <div class="stat-card-label">Belum Lunas 2026</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.4s">
+        <div class="stat-card-value" id="pub-pending">43</div>
+        <div class="stat-card-label">Menunggu Verifikasi</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.5s">
+        <div class="stat-card-value" id="pub-persen">70%</div>
+        <div class="stat-card-label">Tingkat Lunas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="public-content">
+    <div style="max-width:1100px;margin:0 auto">
+      <div class="section-title">📊 Analitik Pembayaran PBB</div>
+      <div class="section-sub">Rekapitulasi per tahun, per dusun, per RW dan RT</div>
+
+      <div class="year-tabs" id="pub-year-tabs"></div>
+
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <h3>Tren Pembayaran 2020–2026</h3>
+          <p>Persentase pelunasan per tahun</p>
+          <div class="chart-wrap"><canvas id="chart-tren"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Status Tahun Ini (2026)</h3>
+          <p>Distribusi status pembayaran</p>
+          <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Rekapitulasi Per RW</h3>
+          <p>Jumlah lunas vs tunggakan per RW</p>
+          <div class="chart-wrap"><canvas id="chart-rw"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Rekapitulasi Per RT</h3>
+          <p>Progress pelunasan tiap RT</p>
+          <div class="chart-wrap"><canvas id="chart-rt"></canvas></div>
+        </div>
+      </div>
+
+      <div class="section-title">🏘️ Status Per Dusun</div>
+      <div class="section-sub">Ringkasan pembayaran berdasarkan wilayah dusun</div>
+      <div class="dusun-grid" id="dusun-grid"></div>
+
+      <!-- Cek Status WP -->
+      <div class="chart-card" style="margin-bottom:32px">
+        <h3 style="margin-bottom:4px">🔍 Cek Status Wajib Pajak</h3>
+        <p style="margin-bottom:16px">Masukkan NOP atau nama untuk melihat status pembayaran</p>
+        <div class="filter-row">
+          <div class="search-box" style="flex:2">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Cari nama atau NOP..." id="pub-search" oninput="pubSearch()">
+          </div>
+          <select class="select-filter" onchange="pubSearch()" id="pub-filter-status">
+            <option value="">Semua Status</option>
+            <option value="lunas">Lunas</option>
+            <option value="pending">Pending</option>
+            <option value="tunggakan">Tunggakan</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NOP</th><th>Nama WP</th><th>Dusun/RW/RT</th><th>2024</th><th>2025</th><th>2026</th><th>Tunggakan</th></tr></thead>
+            <tbody id="pub-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: LOGIN ===================== -->
+<div class="page" id="page-login" style="display:flex;align-items:center;justify-content:center;padding-top:64px">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-icon">🏛️</div>
+      <h2>Masuk ke SIPBB</h2>
+      <p>Desa Kasomalang Kulon</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role / Jabatan</label>
+      <select class="form-input form-select" id="login-role">
+        <option value="admin">Admin Desa</option>
+        <option value="kolektor">Kolektor</option>
+        <option value="rt">Petugas RT</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="login-user" placeholder="Masukkan username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px" onclick="doLogin()">Masuk</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:0.8rem" onclick="showPage('public')">← Kembali ke Dashboard Publik</button>
+    <div class="login-demo">
+      <p>Demo Login Cepat:</p>
+      <button class="demo-btn" onclick="quickLogin('admin','admin','admin123')">Admin Desa</button>
+      <button class="demo-btn" onclick="quickLogin('kolektor','kolektor1','kolektor123')">Kolektor</button>
+      <button class="demo-btn" onclick="quickLogin('rt','rt001','rt123')">Petugas RT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: APP (Sidebar Layout) ===================== -->
+<div class="page" id="page-app">
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sb-avatar">A</div>
+        <div class="sidebar-user-name" id="sb-name">Admin</div>
+        <div class="sidebar-user-role" id="sb-role">Administrator</div>
+        <span class="role-badge role-admin" id="sb-badge">ADMIN</span>
+      </div>
+
+      <!-- ADMIN MENUS -->
+      <div id="menu-admin" style="display:none">
+        <div class="nav-section">Utama</div>
+        <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard"><span>📊</span> Dashboard</div>
+        <div class="nav-item" onclick="showSection('data-wp')" id="nav-data-wp"><span>👥</span> Data Wajib Pajak</div>
+        <div class="nav-item" onclick="showSection('approval')" id="nav-approval"><span>✅</span> Approval Bayar <span class="nav-badge" id="badge-approval">0</span></div>
+        <div class="nav-section">Laporan</div>
+        <div class="nav-item" onclick="showSection('rekap')" id="nav-rekap"><span>📋</span> Rekap Tunggakan</div>
+        <div class="nav-item" onclick="showSection('riwayat')" id="nav-riwayat"><span>🕐</span> Riwayat Bayar</div>
+        <div class="nav-section">Manajemen</div>
+        <div class="nav-item" onclick="showSection('petugas')" id="nav-petugas"><span>👮</span> Manajemen Petugas</div>
+      </div>
+
+      <!-- RT / KOLEKTOR MENUS -->
+      <div id="menu-petugas" style="display:none">
+        <div class="nav-section">Utama</div>
+        <div class="nav-item active" onclick="showSection('dashboard-petugas')" id="nav-dp"><span>📊</span> Dashboard Saya</div>
+        <div class="nav-item" onclick="showSection('bayar-wp')" id="nav-bayar"><span>💳</span> Input Pembayaran</div>
+        <div class="nav-item" onclick="showSection('riwayat-petugas')" id="nav-rp"><span>🕐</span> Riwayat Upload</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ===== ADMIN: DASHBOARD ===== -->
+      <div class="content-section active" id="section-dashboard">
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:1.4rem;font-weight:800">Dashboard Admin</h2>
+          <p style="color:var(--abu-gelap);font-size:0.875rem">Rekapitulasi pembayaran PBB Desa Kasomalang Kulon</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card green" style="animation-delay:0.1s">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value green" id="kpi-lunas">876</div>
+            <div class="kpi-label">Sudah Lunas 2026</div>
+            <div class="kpi-trend up">↑ 12% dari 2025</div>
+          </div>
+          <div class="kpi-card red" style="animation-delay:0.2s">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-value red" id="kpi-tunggak">371</div>
+            <div class="kpi-label">Belum Lunas 2026</div>
+            <div class="kpi-trend down">↑ 8% dari 2025</div>
+          </div>
+          <div class="kpi-card yellow" style="animation-delay:0.3s">
+            <div class="kpi-icon">⏳</div>
+            <div class="kpi-value yellow" id="kpi-pending">43</div>
+            <div class="kpi-label">Pending Verifikasi</div>
+            <div class="kpi-trend">Menunggu Approve</div>
+          </div>
+          <div class="kpi-card blue" style="animation-delay:0.4s">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-value blue">1.247</div>
+            <div class="kpi-label">Total Wajib Pajak</div>
+            <div class="kpi-trend">7 Dusun</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <h3>Tren Pelunasan per Tahun</h3>
+            <p style="font-size:0.8rem;color:var(--abu-gelap);margin-bottom:16px">2020–2026</p>
+            <div class="chart-wrap"><canvas id="admin-chart-tren"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Status 2026 per Dusun</h3>
+            <p style="font-size:0.8rem;color:var(--abu-gelap);margin-bottom:16px">Lunas vs Tunggakan</p>
+            <div class="chart-wrap"><canvas id="admin-chart-dusun"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⏰ Pending Approval Terbaru</div>
+            <button class="btn btn-primary btn-sm" onclick="showSection('approval')">Lihat Semua</button>
+          </div>
+          <div class="table-wrap" id="admin-pending-preview"></div>
+        </div>
+      </div>
+
+      <!-- ===== ADMIN: DATA WAJIB PAJAK ===== -->
+      <div class="content-section" id="section-data-wp">
+        <div class="card-header">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800">Data Wajib Pajak</h2>
+            <p style="font-size:0.875rem;color:var(--abu-gelap)">Kelola data dan riwayat pembayaran per NOP</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalTambahWP()">+ Tambah WP</button>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="filter-row">
+            <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Cari nama / NOP / RT / RW..." id="admin-search-wp" oninput="filterWP()"></div>
+            <select class="select-filter" id="filter-dusun" onchange="filterWP()">
+              <option value="">Semua Dusun</option>
+              <option>Dusun Kidul</option><option>Dusun Kulon</option><option>Dusun Wetan</option>
+              <option>Dusun Kaler</option><option>Dusun Tengah</option><option>Dusun Girang</option><option>Dusun Hilir</option>
+            </select>
+            <select class="select-filter" id="filter-status-wp" onchange="filterWP()">
+              <option value="">Semua Status</option>
+              <option value="lunas">Lunas</option>
+              <option value="pending">Pending</option>
+              <option value="tunggakan">Tunggakan</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>NOP</th><th>Nama WP</th><th>Dusun</th><th>RW</th><th>RT</th><th>Status 2026</th><th>Tunggakan</th><th>Aksi</th></tr></thead>
+              <tbody id="admin-wp-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ADMIN: APPROVAL ===== -->
+      <div class="content-section" id="section-approval">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800">Approval Pembayaran</h2>
+          <p style="font-size:0.875rem;color:var(--abu-gelap)">Verifikasi bukti pembayaran yang diupload petugas</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal Upload</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="approval-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== ADMIN: REKAP TUNGGAKAN ===== -->
+      <div class="content-section" id="section-rekap">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800">Rekap Tunggakan</h2>
+          <p style="font-size:0.875rem;color:var(--abu-gelap)">Wajib pajak yang masih memiliki tunggakan 2020–2026</p>
+        </div>
+        <div class="kpi-grid" style="margin-bottom:24px">
+          <div class="kpi-card red"><div class="kpi-icon">📅</div><div class="kpi-value red" id="rek-total">0</div><div class="kpi-label">Total Tunggakan</div></div>
+          <div class="kpi-card yellow"><div class="kpi-icon">📅</div><div class="kpi-value yellow" id="rek-1th">0</div><div class="kpi-label">Tunggak 1 Tahun</div></div>
+          <div class="kpi-card red"><div class="kpi-icon">📅</div><div class="kpi-value red" id="rek-multi">0</div><div class="kpi-label">Tunggak >1 Tahun</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NOP</th><th>Nama WP</th><th>Dusun/RW/RT</th><th>Tahun Tunggak</th><th>Jumlah Tahun</th><th>Aksi</th></tr></thead>
+            <tbody id="rekap-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== ADMIN: RIWAYAT ===== -->
+      <div class="content-section" id="section-riwayat">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800">Riwayat Pembayaran</h2>
+          <p style="font-size:0.875rem;color:var(--abu-gelap)">Semua transaksi yang telah diproses</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove Oleh</th></tr></thead>
+            <tbody id="riwayat-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== ADMIN: PETUGAS ===== -->
+      <div class="content-section" id="section-petugas">
+        <div class="card-header">
+          <div>
+            <h2 style="font-size:1.3rem;font-weight:800">Manajemen Petugas</h2>
+            <p style="font-size:0.875rem;color:var(--abu-gelap)">Kelola akun RT dan Kolektor</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalTambahPetugas()">+ Tambah Petugas</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Wilayah</th><th>Total Upload</th><th>Aksi</th></tr></thead>
+            <tbody id="petugas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PETUGAS: DASHBOARD ===== -->
+      <div class="content-section" id="section-dashboard-petugas">
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:1.4rem;font-weight:800">Dashboard Saya</h2>
+          <p style="color:var(--abu-gelap);font-size:0.875rem" id="petugas-greeting">Selamat datang</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-value green" id="pet-lunas">0</div><div class="kpi-label">Sudah Lunas (Wilayah Saya)</div></div>
+          <div class="kpi-card red"><div class="kpi-icon">⚠️</div><div class="kpi-value red" id="pet-belum">0</div><div class="kpi-label">Belum Lunas</div></div>
+          <div class="kpi-card yellow"><div class="kpi-icon">⏳</div><div class="kpi-value yellow" id="pet-pending">0</div><div class="kpi-label">Pending Approve</div></div>
+          <div class="kpi-card blue"><div class="kpi-icon">📋</div><div class="kpi-value blue" id="pet-total">0</div><div class="kpi-label">Total WP Wilayah</div></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:16px">WP Belum Lunas – Wilayah Saya (2026)</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>NOP</th><th>Nama WP</th><th>Status</th><th>Aksi</th></tr></thead>
+              <tbody id="petugas-wp-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PETUGAS: INPUT BAYAR ===== -->
+      <div class="content-section" id="section-bayar-wp">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800">Input Pembayaran</h2>
+          <p style="font-size:0.875rem;color:var(--abu-gelap)">Upload bukti bayar wajib pajak ke desa</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card">
+            <h3 style="margin-bottom:16px">Form Upload Bukti Bayar</h3>
+            <div class="form-group">
+              <label class="form-label">Cari Wajib Pajak (Nama / NOP)</label>
+              <input class="form-input" type="text" id="bayar-search" placeholder="Ketik nama atau NOP..." oninput="searchBayarWP()">
+            </div>
+            <div id="bayar-wp-result" style="margin-bottom:16px"></div>
+            <div class="form-group">
+              <label class="form-label">Tahun Pembayaran</label>
+              <select class="form-input form-select" id="bayar-tahun">
+                <option>2026</option><option>2025</option><option>2024</option>
+                <option>2023</option><option>2022</option><option>2021</option><option>2020</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Keterangan (opsional)</label>
+              <input class="form-input" type="text" id="bayar-ket" placeholder="Catatan pembayaran...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bukti Pembayaran (Foto/Kuitansi)</label>
+              <div class="upload-area" onclick="document.getElementById('file-bukti').click()" id="upload-area">
+                <input type="file" id="file-bukti" accept="image/*" onchange="previewBukti(this)">
+                <div class="upload-icon">📎</div>
+                <div class="upload-text">Klik atau drag foto bukti bayar<br><small style="color:var(--abu-gelap)">JPG, PNG, max 5MB</small></div>
+                <img id="bukti-preview" class="upload-preview">
+              </div>
+            </div>
+            <button class="btn btn-success btn-lg" style="width:100%" onclick="submitBayar()">⬆️ Upload Bukti Bayar</button>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:16px">Info WP yang Dipilih</h3>
+            <div id="bayar-info-detail">
+              <div class="empty-state">
+                <div class="empty-icon">👆</div>
+                <p>Cari dan pilih wajib pajak terlebih dahulu</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PETUGAS: RIWAYAT UPLOAD ===== -->
+      <div class="content-section" id="section-riwayat-petugas">
+        <div style="margin-bottom:20px">
+          <h2 style="font-size:1.3rem;font-weight:800">Riwayat Upload Saya</h2>
+          <p style="font-size:0.875rem;color:var(--abu-gelap)">Semua bukti bayar yang pernah Anda upload</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Status</th><th>Ket. Admin</th></tr></thead>
+            <tbody id="riwayat-petugas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Modal Detail WP -->
+<div class="modal-overlay" id="modal-detail-wp">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Detail Wajib Pajak</h3>
+      <button class="modal-close" onclick="closeModal('modal-detail-wp')">✕</button>
+    </div>
+    <div id="modal-wp-content"></div>
+  </div>
+</div>
+
+<!-- Modal Tambah WP -->
+<div class="modal-overlay" id="modal-tambah-wp">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Tambah Wajib Pajak</h3>
+      <button class="modal-close" onclick="closeModal('modal-tambah-wp')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">NOP</label><input class="form-input" id="twp-nop" placeholder="32.xx.xxx.xxx.xxx-xxxx.x"></div>
+    <div class="form-group"><label class="form-label">Nama Wajib Pajak</label><input class="form-input" id="twp-nama"></div>
+    <div class="form-group"><label class="form-label">Dusun</label>
+      <select class="form-input form-select" id="twp-dusun">
+        <option>Dusun Kidul</option><option>Dusun Kulon</option><option>Dusun Wetan</option>
+        <option>Dusun Kaler</option><option>Dusun Tengah</option><option>Dusun Girang</option><option>Dusun Hilir</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">RW</label><input class="form-input" id="twp-rw" placeholder="001"></div>
+      <div class="form-group"><label class="form-label">RT</label><input class="form-input" id="twp-rt" placeholder="001"></div>
+    </div>
+    <button class="btn btn-primary btn-lg" style="width:100%" onclick="simpanWP()">Simpan</button>
+  </div>
+</div>
+
+<!-- Modal Tambah Petugas -->
+<div class="modal-overlay" id="modal-tambah-petugas">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Tambah Petugas</h3>
+      <button class="modal-close" onclick="closeModal('modal-tambah-petugas')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input" id="tp-nama"></div>
+    <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="tp-user"></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="tp-pass"></div>
+    <div class="form-group"><label class="form-label">Role</label>
+      <select class="form-input form-select" id="tp-role"><option value="rt">Petugas RT</option><option value="kolektor">Kolektor</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Wilayah (Dusun/RW/RT)</label><input class="form-input" id="tp-wilayah" placeholder="cth: Dusun Kidul / RW 001 / RT 003"></div>
+    <button class="btn btn-primary btn-lg" style="width:100%" onclick="simpanPetugas()">Simpan</button>
+  </div>
+</div>
+
+<!-- Modal View Bukti -->
+<div class="modal-overlay" id="modal-bukti">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Bukti Pembayaran</h3>
+      <button class="modal-close" onclick="closeModal('modal-bukti')">✕</button>
+    </div>
+    <div id="modal-bukti-content"></div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const TAHUN_LIST = [2020,2021,2022,2023,2024,2025,2026];
+
+const DUSUN_DATA = [
+  { nama:'Dusun Kidul', rw:['001','002'], rt:['001','002','003','004'], target:180 },
+  { nama:'Dusun Kulon', rw:['003','004'], rt:['005','006','007'], target:210 },
+  { nama:'Dusun Wetan', rw:['005'], rt:['008','009','010'], target:165 },
+  { nama:'Dusun Kaler', rw:['006','007'], rt:['011','012','013','014'], target:220 },
+  { nama:'Dusun Tengah', rw:['008'], rt:['015','016'], target:140 },
+  { nama:'Dusun Girang', rw:['009'], rt:['017','018','019'], target:170 },
+  { nama:'Dusun Hilir', rw:['010','011'], rt:['020','021','022'], target:162 },
+];
+
+// Generate dummy WP data
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function rndName(){
+  const first=['Asep','Dedi','Yusuf','Siti','Neng','Ujang','Imas','Dadang','Rina','Hendra','Cucu','Ade','Rini','Budi','Sri','Jajang','Euis','Tatang','Yuyun','Rahmat'];
+  const last=['Suparman','Hidayat','Permana','Santoso','Rahayu','Susilawati','Kurniawan','Wibowo','Nugraha','Setiawan','Maulana','Gunawan','Sukma','Purnama','Cahyadi'];
+  return first[rnd(0,first.length-1)]+' '+last[rnd(0,last.length-1)];
+}
+
+// Deterministic pseudo-random based on seed
+function seededRnd(seed){
+  let x = Math.sin(seed)*10000;
+  return x - Math.floor(x);
+}
+
+const wpData = [];
+let wpId = 1;
+DUSUN_DATA.forEach((d,di)=>{
+  for(let i=0;i<d.target;i++){
+    const rw = d.rw[i % d.rw.length];
+    const rt = d.rt[i % d.rt.length];
+    const nop = `32.${String(di+1).padStart(2,'0')}.${String(rnd(100,999))}.${String(rnd(100,999))}.${String(rnd(100,999))}-${String(rnd(1000,9999))}.${rnd(0,9)}`;
+    const nama = rndName();
+    const payments = {};
+    TAHUN_LIST.forEach((y,yi)=>{
+      const r = seededRnd(wpId*100+yi);
+      if(y < 2025){
+        payments[y] = r > 0.1 ? 'lunas' : 'tunggakan';
+      } else if(y === 2025){
+        payments[y] = r > 0.15 ? 'lunas' : (r > 0.07 ? 'pending' : 'tunggakan');
+      } else {
+        payments[y] = r > 0.3 ? 'lunas' : (r > 0.15 ? 'pending' : 'tunggakan');
+      }
+    });
+    wpData.push({ id:wpId++, nop, nama, dusun:d.nama, rw, rt, payments });
+  }
+});
+
+// Pending uploads
+const pendingList = [];
+wpData.filter(w=>w.payments[2026]==='pending' || w.payments[2025]==='pending').slice(0,43).forEach((w,i)=>{
+  const tahun = w.payments[2026]==='pending'?2026:2025;
+  pendingList.push({
+    id: i+1,
+    nop: w.nop,
+    nama: w.nama,
+    tahun,
+    petugas: ['RT 001','RT 002','Kolektor','RT 003'][i%4],
+    tanggal: `${rnd(1,28)}/0${rnd(1,6)}/2026`,
+    status: 'pending',
+    buktiUrl: null,
+    ketAdmin: '',
+    wpRef: w
+  });
+});
+
+// Riwayat lunas
+const riwayatList = [];
+wpData.filter(w=>w.payments[2026]==='lunas').slice(0,50).forEach((w,i)=>{
+  riwayatList.push({
+    id:i+1, nop:w.nop, nama:w.nama, tahun:2026,
+    petugas:['RT 001','Kolektor','RT 002'][i%3],
+    tglLunas:`${rnd(1,28)}/0${rnd(1,5)}/2026`,
+    approvedBy:'Admin Desa'
+  });
+});
+
+// Petugas
+const petugasList = [
+  {id:1,nama:'Asep Kurniawan',username:'rt001',password:'rt123',role:'rt',wilayah:'Dusun Kidul / RW 001 / RT 001',totalUpload:45},
+  {id:2,nama:'Dedi Permana',username:'rt002',password:'rt123',role:'rt',wilayah:'Dusun Kulon / RW 003 / RT 005',totalUpload:38},
+  {id:3,nama:'Hendra Santoso',username:'kolektor1',password:'kolektor123',role:'kolektor',wilayah:'Semua Dusun',totalUpload:122},
+  {id:4,nama:'Ujang Maulana',username:'rt003',password:'rt123',role:'rt',wilayah:'Dusun Wetan / RW 005 / RT 008',totalUpload:29},
+];
+
+// Users
+const users = [
+  {username:'admin',password:'admin123',role:'admin',nama:'Admin Desa',wilayah:''},
+  ...petugasList.map(p=>({username:p.username,password:p.password,role:p.role,nama:p.nama,wilayah:p.wilayah}))
+];
+
+let currentUser = null;
+let selectedBayarWP = null;
+let selectedBayarFile = null;
+
+// ==================== INIT ====================
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loading-screen').style.opacity='0';
+    setTimeout(()=>document.getElementById('loading-screen').style.display='none',600);
+    initPublic();
+  },2000);
+});
+
+function initPublic(){
+  buildYearTabs();
+  buildDusunGrid();
+  buildPublicTable();
+  buildCharts();
+}
+
+// ==================== NAVIGATION ====================
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  const target = document.getElementById('page-'+p);
+  if(target){ target.classList.add('active'); target.style.display = p==='login'?'flex':'block'; }
+
+  // Navbar buttons
+  const isLoggedIn = !!currentUser;
+  document.getElementById('btn-nav-login').style.display = isLoggedIn?'none':'';
+  document.getElementById('btn-nav-logout').style.display = isLoggedIn?'':'none';
+  if(p==='app' && isLoggedIn) { refreshAppData(); }
+}
+
+function showSection(id){
+  document.querySelectorAll('.content-section').forEach(el=>el.classList.remove('active'));
+  const s = document.getElementById('section-'+id);
+  if(s) s.classList.add('active');
+  // Update nav active
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const nav = document.getElementById('nav-'+id.replace(/-petugas$/,'').replace(/dashboard-petugas/,'dp').replace(/bayar-wp/,'bayar').replace(/riwayat-petugas/,'rp'));
+  if(nav) nav.classList.add('active');
+
+  if(id==='rekap') buildRekapTable();
+  if(id==='approval') buildApprovalTable();
+  if(id==='riwayat') buildRiwayatTable();
+  if(id==='petugas') buildPetugasTable();
+  if(id==='data-wp') buildWPTable();
+  if(id==='dashboard-petugas') buildPetugasDashboard();
+  if(id==='riwayat-petugas') buildRiwayatPetugas();
+}
+
+// ==================== AUTH ====================
+function quickLogin(role,user,pass){
+  document.getElementById('login-role').value=role;
+  document.getElementById('login-user').value=user;
+  document.getElementById('login-pass').value=pass;
+}
+
+function doLogin(){
+  const role=document.getElementById('login-role').value;
+  const user=document.getElementById('login-user').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const found = users.find(u=>u.username===user&&u.password===pass&&u.role===role);
+  if(!found){ showToast('Username atau password salah!','error'); return; }
+  currentUser = found;
+  setupSidebar();
+  showPage('app');
+  document.getElementById('page-app').style.display='block';
+  showToast(`Selamat datang, ${found.nama}! 👋`);
+}
+
+function logout(){
+  currentUser=null;
+  showPage('public');
+  showToast('Berhasil keluar');
+}
+
+function setupSidebar(){
+  const u=currentUser;
+  document.getElementById('sb-avatar').textContent=u.nama[0];
+  document.getElementById('sb-name').textContent=u.nama;
+  document.getElementById('sb-role').textContent=u.role==='admin'?'Admin Desa':u.role==='rt'?'Petugas RT':'Kolektor';
+  const badge=document.getElementById('sb-badge');
+  badge.textContent=u.role.toUpperCase();
+  badge.className='role-badge role-'+(u.role==='admin'?'admin':u.role==='rt'?'rt':'kolektor');
+  document.getElementById('menu-admin').style.display=u.role==='admin'?'':'none';
+  document.getElementById('menu-petugas').style.display=u.role!=='admin'?'':'none';
+  // Update badge
+  const pending = pendingList.filter(p=>p.status==='pending').length;
+  const badge2 = document.getElementById('badge-approval');
+  if(badge2){ badge2.textContent=pending; badge2.style.display=pending>0?'':'none'; }
+}
+
+function refreshAppData(){
+  if(!currentUser) return;
+  if(currentUser.role==='admin'){
+    showSection('dashboard');
+    buildAdminDashboard();
+  } else {
+    showSection('dashboard-petugas');
+    buildPetugasDashboard();
+  }
+}
+
+// ==================== CHARTS ====================
+let chartInstances = {};
+
+function destroyChart(id){ if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+function buildCharts(){
+  // Tren
+  const tren = TAHUN_LIST.map(y=>{ const tot=wpData.length; const lunas=wpData.filter(w=>w.payments[y]==='lunas').length; return Math.round(lunas/tot*100); });
+  destroyChart('chart-tren');
+  chartInstances['chart-tren'] = new Chart(document.getElementById('chart-tren').getContext('2d'),{
+    type:'line',
+    data:{labels:TAHUN_LIST.map(String),datasets:[{label:'% Lunas',data:tren,borderColor:'#23a86a',backgroundColor:'rgba(35,168,106,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#23a86a',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e8ede9'}},x:{grid:{display:false}}}}
+  });
+
+  // Donut
+  const tot26=wpData.length, lunas26=wpData.filter(w=>w.payments[2026]==='lunas').length, pending26=wpData.filter(w=>w.payments[2026]==='pending').length, tunggak26=tot26-lunas26-pending26;
+  destroyChart('chart-donut');
+  chartInstances['chart-donut'] = new Chart(document.getElementById('chart-donut').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:['Lunas','Pending','Tunggakan'],datasets:[{data:[lunas26,pending26,tunggak26],backgroundColor:['#23a86a','#f59e0b','#e03c3c'],borderWidth:0,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:16,font:{size:12}}}}}
+  });
+
+  // Per RW
+  const rwMap = {};
+  wpData.forEach(w=>{ const k=w.rw; if(!rwMap[k]) rwMap[k]={lunas:0,tunggak:0}; if(w.payments[2026]==='lunas') rwMap[k].lunas++; else if(w.payments[2026]==='tunggakan') rwMap[k].tunggak++; });
+  const rwKeys = Object.keys(rwMap).sort().slice(0,8);
+  destroyChart('chart-rw');
+  chartInstances['chart-rw'] = new Chart(document.getElementById('chart-rw').getContext('2d'),{
+    type:'bar',
+    data:{labels:rwKeys.map(r=>'RW '+r),datasets:[{label:'Lunas',data:rwKeys.map(r=>rwMap[r].lunas),backgroundColor:'#23a86a'},{label:'Tunggakan',data:rwKeys.map(r=>rwMap[r].tunggak),backgroundColor:'#e03c3c'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#e8ede9'}}}}
+  });
+
+  // Per RT
+  const rtMap = {};
+  wpData.forEach(w=>{ const k=w.rt; if(!rtMap[k]) rtMap[k]={lunas:0,tot:0}; rtMap[k].tot++; if(w.payments[2026]==='lunas') rtMap[k].lunas++; });
+  const rtKeys = Object.keys(rtMap).sort().slice(0,8);
+  destroyChart('chart-rt');
+  chartInstances['chart-rt'] = new Chart(document.getElementById('chart-rt').getContext('2d'),{
+    type:'bar',
+    data:{labels:rtKeys.map(r=>'RT '+r),datasets:[{label:'% Lunas',data:rtKeys.map(r=>Math.round(rtMap[r].lunas/rtMap[r].tot*100)),backgroundColor:'rgba(26,122,74,0.8)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e8ede9'}},x:{grid:{display:false}}}}
+  });
+}
+
+function buildAdminDashboard(){
+  // Build admin charts
+  const tren = TAHUN_LIST.map(y=>{ const tot=wpData.length; const lunas=wpData.filter(w=>w.payments[y]==='lunas').length; return Math.round(lunas/tot*100); });
+  destroyChart('admin-chart-tren');
+  chartInstances['admin-chart-tren'] = new Chart(document.getElementById('admin-chart-tren').getContext('2d'),{
+    type:'line',
+    data:{labels:TAHUN_LIST.map(String),datasets:[{label:'% Lunas',data:tren,borderColor:'#23a86a',backgroundColor:'rgba(35,168,106,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#23a86a',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#e8ede9'}},x:{grid:{display:false}}}}
+  });
+  const dusunLabels=DUSUN_DATA.map(d=>d.nama.replace('Dusun ',''));
+  const dusunLunas=DUSUN_DATA.map(d=>wpData.filter(w=>w.dusun===d.nama&&w.payments[2026]==='lunas').length);
+  const dusunTunggak=DUSUN_DATA.map(d=>wpData.filter(w=>w.dusun===d.nama&&w.payments[2026]==='tunggakan').length);
+  destroyChart('admin-chart-dusun');
+  chartInstances['admin-chart-dusun'] = new Chart(document.getElementById('admin-chart-dusun').getContext('2d'),{
+    type:'bar',
+    data:{labels:dusunLabels,datasets:[{label:'Lunas',data:dusunLunas,backgroundColor:'#23a86a',borderRadius:4},{label:'Tunggakan',data:dusunTunggak,backgroundColor:'#e03c3c',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{grid:{color:'#e8ede9'}}}}
+  });
+  // pending preview
+  buildPendingPreview();
+  // KPI update
+  document.getElementById('kpi-pending').textContent = pendingList.filter(p=>p.status==='pending').length;
+  document.getElementById('kpi-lunas').textContent = wpData.filter(w=>w.payments[2026]==='lunas').length;
+  document.getElementById('kpi-tunggak').textContent = wpData.filter(w=>w.payments[2026]==='tunggakan').length;
+}
+
+function buildPendingPreview(){
+  const pending = pendingList.filter(p=>p.status==='pending').slice(0,5);
+  const div = document.getElementById('admin-pending-preview');
+  if(!pending.length){ div.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><p>Tidak ada pembayaran yang menunggu approval</p></div>'; return; }
+  div.innerHTML=`<table><thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Aksi</th></tr></thead><tbody>${pending.map(p=>`
+    <tr>
+      <td>${p.tanggal}</td>
+      <td class="text-mono">${p.nop.substring(0,14)}...</td>
+      <td>${p.nama}</td>
+      <td><strong>${p.tahun}</strong></td>
+      <td>${p.petugas}</td>
+      <td>
+        <button class="btn btn-success btn-sm" onclick="approvePayment(${p.id},true)">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="approvePayment(${p.id},false)" style="margin-left:4px">✕</button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// ==================== DUSUN GRID ====================
+function buildDusunGrid(){
+  const g = document.getElementById('dusun-grid');
+  g.innerHTML = DUSUN_DATA.map(d=>{
+    const lunas = wpData.filter(w=>w.dusun===d.nama&&w.payments[2026]==='lunas').length;
+    const pending = wpData.filter(w=>w.dusun===d.nama&&w.payments[2026]==='pending').length;
+    const total = wpData.filter(w=>w.dusun===d.nama).length;
+    const tunggak = total-lunas-pending;
+    const persen = Math.round(lunas/total*100);
+    return `<div class="dusun-card">
+      <h4>🏘️ ${d.nama}</h4>
+      <div class="dusun-stat"><label>Total WP</label><strong>${total}</strong></div>
+      <div class="dusun-stat"><label>Lunas</label><strong style="color:var(--hijau)">${lunas}</strong></div>
+      <div class="dusun-stat"><label>Pending</label><strong style="color:var(--kuning)">${pending}</strong></div>
+      <div class="dusun-stat"><label>Tunggakan</label><strong style="color:var(--merah)">${tunggak}</strong></div>
+      <div class="dusun-stat"><label>Progress</label><strong>${persen}%</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${persen}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ==================== YEAR TABS ====================
+function buildYearTabs(){
+  const c = document.getElementById('pub-year-tabs');
+  c.innerHTML = TAHUN_LIST.slice().reverse().map((y,i)=>`<div class="year-tab${i===0?' active':''}" onclick="selectYearTab(${y},this)">${y}</div>`).join('');
+}
+function selectYearTab(y, el){
+  document.querySelectorAll('.year-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ==================== PUBLIC TABLE ====================
+function buildPublicTable(filter='', filterStatus=''){
+  const tbody = document.getElementById('pub-table-body');
+  let data = wpData;
+  if(filter) data = data.filter(w=>w.nama.toLowerCase().includes(filter)||w.nop.includes(filter));
+  if(filterStatus) data = data.filter(w=>w.payments[2026]===filterStatus);
+  data = data.slice(0,50);
+  if(!data.length){ tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--abu-gelap);padding:32px">Data tidak ditemukan</td></tr>`; return; }
+  tbody.innerHTML = data.map(w=>{
+    const tunggakTahun = TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan');
+    const tunggakStr = tunggakTahun.length ? `<span style="color:var(--merah);font-size:0.75rem">${tunggakTahun.join(', ')}</span>` : `<span style="color:var(--hijau);font-size:0.75rem">✓ Tidak ada</span>`;
+    return `<tr>
+      <td class="text-mono" style="font-size:0.75rem">${w.nop}</td>
+      <td><strong>${w.nama}</strong></td>
+      <td><span style="font-size:0.8rem">${w.dusun}<br>RW ${w.rw} / RT ${w.rt}</span></td>
+      <td>${statusBadge(w.payments[2024])}</td>
+      <td>${statusBadge(w.payments[2025])}</td>
+      <td>${statusBadge(w.payments[2026])}</td>
+      <td>${tunggakStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function pubSearch(){
+  const q = document.getElementById('pub-search').value;
+  const s = document.getElementById('pub-filter-status').value;
+  buildPublicTable(q,s);
+}
+
+function statusBadge(s){
+  if(s==='lunas') return '<span class="badge badge-lunas">Lunas</span>';
+  if(s==='pending') return '<span class="badge badge-pending">Pending</span>';
+  return '<span class="badge badge-tunggakan">Tunggakan</span>';
+}
+
+// ==================== ADMIN: WP TABLE ====================
+function buildWPTable(){
+  let data = wpData;
+  const q = document.getElementById('admin-search-wp')?.value || '';
+  const dusun = document.getElementById('filter-dusun')?.value || '';
+  const status = document.getElementById('filter-status-wp')?.value || '';
+  if(q) data = data.filter(w=>w.nama.toLowerCase().includes(q.toLowerCase())||w.nop.includes(q));
+  if(dusun) data = data.filter(w=>w.dusun===dusun);
+  if(status) data = data.filter(w=>w.payments[2026]===status);
+  data = data.slice(0,100);
+  const tbody = document.getElementById('admin-wp-tbody');
+  tbody.innerHTML = data.map(w=>{
+    const tunggak = TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan');
+    return `<tr>
+      <td class="text-mono" style="font-size:0.75rem">${w.nop}</td>
+      <td><strong>${w.nama}</strong></td>
+      <td>${w.dusun}</td><td>RW ${w.rw}</td><td>RT ${w.rt}</td>
+      <td>${statusBadge(w.payments[2026])}</td>
+      <td>${tunggak.length?`<span style="color:var(--merah);font-size:0.8rem">${tunggak.length} tahun</span>`:'<span style="color:var(--hijau);font-size:0.8rem">Bersih</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="showDetailWP(${w.id})">Detail</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterWP(){ buildWPTable(); }
+
+function showDetailWP(id){
+  const w = wpData.find(x=>x.id===id);
+  if(!w) return;
+  const tunggak = TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan');
+  const content = `
+    ${tunggak.length?`<div class="tunggakan-alert"><div class="tunggakan-icon">⚠️</div><div class="tunggakan-text"><h4>Memiliki Tunggakan</h4><p>Belum lunas tahun: ${tunggak.join(', ')}</p></div></div>`:''}
+    <div class="info-row"><label>NOP</label><strong class="text-mono">${w.nop}</strong></div>
+    <div class="info-row"><label>Nama WP</label><strong>${w.nama}</strong></div>
+    <div class="info-row"><label>Dusun</label><strong>${w.dusun}</strong></div>
+    <div class="info-row"><label>RW / RT</label><strong>RW ${w.rw} / RT ${w.rt}</strong></div>
+    <div style="margin-top:20px"><h4 style="margin-bottom:12px">Riwayat Pembayaran</h4>
+    <div class="table-wrap"><table><thead><tr><th>Tahun</th><th>Status</th></tr></thead><tbody>
+    ${TAHUN_LIST.slice().reverse().map(y=>`<tr><td><strong>${y}</strong></td><td>${statusBadge(w.payments[y])}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  document.getElementById('modal-wp-content').innerHTML = content;
+  openModal('modal-detail-wp');
+}
+
+// ==================== ADMIN: APPROVAL ====================
+function buildApprovalTable(){
+  const tbody = document.getElementById('approval-tbody');
+  tbody.innerHTML = pendingList.map(p=>`<tr>
+    <td>${p.tanggal}</td>
+    <td class="text-mono" style="font-size:0.75rem">${p.nop.substring(0,12)}...</td>
+    <td><strong>${p.nama}</strong></td>
+    <td><strong>${p.tahun}</strong></td>
+    <td>${p.petugas}</td>
+    <td><button class="btn btn-outline btn-sm" onclick="viewBukti(${p.id})">📎 Lihat</button></td>
+    <td>${p.status==='pending'?'<span class="badge badge-pending">Pending</span>':p.status==='lunas'?'<span class="badge badge-lunas">Approved</span>':'<span class="badge badge-tunggakan">Rejected</span>'}</td>
+    <td>${p.status==='pending'?`<button class="btn btn-success btn-sm" onclick="approvePayment(${p.id},true)">✓</button> <button class="btn btn-danger btn-sm" onclick="approvePayment(${p.id},false)">✕</button>`:`<span style="color:var(--abu-gelap);font-size:0.8rem">${p.ketAdmin}</span>`}</td>
+  </tr>`).join('');
+}
+
+function approvePayment(id, approved){
+  const p = pendingList.find(x=>x.id===id);
+  if(!p||p.status!=='pending') return;
+  p.status = approved?'lunas':'rejected';
+  p.ketAdmin = approved?'Disetujui Admin':'Ditolak Admin';
+  if(approved && p.wpRef){ p.wpRef.payments[p.tahun]='lunas'; riwayatList.unshift({id:riwayatList.length+1,nop:p.nop,nama:p.nama,tahun:p.tahun,petugas:p.petugas,tglLunas:new Date().toLocaleDateString('id'),approvedBy:currentUser.nama}); }
+  showToast(approved?'✅ Pembayaran disetujui!':'❌ Pembayaran ditolak','','');
+  buildApprovalTable();
+  buildPendingPreview();
+  const badge = document.getElementById('badge-approval');
+  const rem = pendingList.filter(x=>x.status==='pending').length;
+  if(badge){ badge.textContent=rem; badge.style.display=rem>0?'':'none'; }
+  document.getElementById('kpi-pending').textContent=rem;
+  if(approved){ document.getElementById('kpi-lunas').textContent=wpData.filter(w=>w.payments[2026]==='lunas').length; document.getElementById('kpi-tunggak').textContent=wpData.filter(w=>w.payments[2026]==='tunggakan').length; }
+  buildPublicTable(); buildDusunGrid();
+}
+
+function viewBukti(id){
+  const p = pendingList.find(x=>x.id===id);
+  document.getElementById('modal-bukti-content').innerHTML=`
+    <div class="info-row"><label>NOP</label><strong>${p.nop}</strong></div>
+    <div class="info-row"><label>Nama</label><strong>${p.nama}</strong></div>
+    <div class="info-row"><label>Tahun</label><strong>${p.tahun}</strong></div>
+    <div class="info-row"><label>Petugas</label><strong>${p.petugas}</strong></div>
+    <div style="margin-top:16px;text-align:center;background:var(--abu-terang);border-radius:8px;padding:32px">
+      <div style="font-size:3rem">📎</div>
+      <p style="color:var(--abu-gelap);margin-top:8px;font-size:0.875rem">Bukti pembayaran (demo — file upload tersimpan di server)</p>
+    </div>
+    ${p.status==='pending'?`<div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-success" style="flex:1" onclick="approvePayment(${p.id},true);closeModal('modal-bukti')">✓ Approve</button>
+      <button class="btn btn-danger" style="flex:1" onclick="approvePayment(${p.id},false);closeModal('modal-bukti')">✕ Reject</button>
+    </div>`:''}`;
+  openModal('modal-bukti');
+}
+
+// ==================== ADMIN: REKAP ====================
+function buildRekapTable(){
+  const data = wpData.filter(w=>TAHUN_LIST.some(y=>w.payments[y]==='tunggakan'));
+  document.getElementById('rek-total').textContent=data.length;
+  document.getElementById('rek-1th').textContent=data.filter(w=>TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan').length===1).length;
+  document.getElementById('rek-multi').textContent=data.filter(w=>TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan').length>1).length;
+  const tbody=document.getElementById('rekap-tbody');
+  tbody.innerHTML=data.slice(0,100).map(w=>{
+    const t=TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan');
+    return `<tr>
+      <td class="text-mono" style="font-size:0.75rem">${w.nop}</td>
+      <td><strong>${w.nama}</strong></td>
+      <td><span style="font-size:0.8rem">${w.dusun} / RW ${w.rw} / RT ${w.rt}</span></td>
+      <td><span style="color:var(--merah);font-weight:600;font-size:0.85rem">${t.join(', ')}</span></td>
+      <td><span class="badge badge-tunggakan">${t.length} tahun</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="showDetailWP(${w.id})">Detail</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ==================== ADMIN: RIWAYAT ====================
+function buildRiwayatTable(){
+  const tbody=document.getElementById('riwayat-tbody');
+  tbody.innerHTML=riwayatList.map(r=>`<tr>
+    <td>${r.tglLunas}</td>
+    <td class="text-mono" style="font-size:0.75rem">${r.nop.substring(0,14)}...</td>
+    <td><strong>${r.nama}</strong></td>
+    <td><strong>${r.tahun}</strong></td>
+    <td>${r.petugas}</td>
+    <td><span class="badge badge-lunas">${r.approvedBy}</span></td>
+  </tr>`).join('');
+}
+
+// ==================== ADMIN: PETUGAS ====================
+function buildPetugasTable(){
+  const tbody=document.getElementById('petugas-tbody');
+  tbody.innerHTML=petugasList.map(p=>`<tr>
+    <td><strong>${p.nama}</strong></td>
+    <td class="text-mono">${p.username}</td>
+    <td><span class="badge ${p.role==='rt'?'badge-approved':'badge-lunas'}">${p.role.toUpperCase()}</span></td>
+    <td style="font-size:0.8rem">${p.wilayah}</td>
+    <td>${p.totalUpload}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="showToast('Edit petugas: '+${JSON.stringify(p.nama)})">Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="showToast('Hapus petugas: '+${JSON.stringify(p.nama)},'error')" style="margin-left:4px">Hapus</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openModalTambahWP(){ openModal('modal-tambah-wp'); }
+function openModalTambahPetugas(){ openModal('modal-tambah-petugas'); }
+function simpanWP(){
+  const nop=document.getElementById('twp-nop').value.trim();
+  const nama=document.getElementById('twp-nama').value.trim();
+  if(!nop||!nama){ showToast('Lengkapi NOP dan Nama WP','error'); return; }
+  showToast('WP berhasil ditambahkan: '+nama);
+  closeModal('modal-tambah-wp');
+  buildWPTable();
+}
+function simpanPetugas(){
+  const nama=document.getElementById('tp-nama').value.trim();
+  if(!nama){ showToast('Lengkapi data petugas','error'); return; }
+  showToast('Petugas berhasil ditambahkan: '+nama);
+  closeModal('modal-tambah-petugas');
+}
+
+// ==================== PETUGAS ====================
+function buildPetugasDashboard(){
+  if(!currentUser) return;
+  document.getElementById('petugas-greeting').textContent=`Halo, ${currentUser.nama} — ${currentUser.wilayah}`;
+  const myPending = pendingList.filter(p=>p.petugas===currentUser.nama||p.petugas.toLowerCase().includes(currentUser.role));
+  const allWP = wpData.slice(0,80);
+  const lunas=allWP.filter(w=>w.payments[2026]==='lunas').length;
+  const belum=allWP.filter(w=>w.payments[2026]==='tunggakan').length;
+  const pend=allWP.filter(w=>w.payments[2026]==='pending').length;
+  document.getElementById('pet-lunas').textContent=lunas;
+  document.getElementById('pet-belum').textContent=belum;
+  document.getElementById('pet-pending').textContent=pend;
+  document.getElementById('pet-total').textContent=allWP.length;
+  const tbody=document.getElementById('petugas-wp-tbody');
+  tbody.innerHTML=allWP.filter(w=>w.payments[2026]!=='lunas').slice(0,20).map(w=>`<tr>
+    <td class="text-mono" style="font-size:0.75rem">${w.nop.substring(0,14)}...</td>
+    <td><strong>${w.nama}</strong></td>
+    <td>${statusBadge(w.payments[2026])}</td>
+    <td><button class="btn btn-primary btn-sm" onclick="prefillBayar(${w.id})">Input Bayar</button></td>
+  </tr>`).join('');
+}
+
+function prefillBayar(id){
+  selectedBayarWP = wpData.find(w=>w.id===id);
+  showSection('bayar-wp');
+  if(selectedBayarWP){ showBayarInfo(selectedBayarWP); document.getElementById('bayar-search').value=selectedBayarWP.nama; }
+}
+
+function searchBayarWP(){
+  const q=document.getElementById('bayar-search').value.toLowerCase();
+  if(!q){ document.getElementById('bayar-wp-result').innerHTML=''; return; }
+  const results = wpData.filter(w=>w.nama.toLowerCase().includes(q)||w.nop.includes(q)).slice(0,5);
+  document.getElementById('bayar-wp-result').innerHTML=results.length?`<div style="border:1px solid var(--abu-medium);border-radius:8px;overflow:hidden">${results.map(w=>`
+    <div style="padding:10px 14px;cursor:pointer;font-size:0.875rem;border-bottom:1px solid var(--abu-medium);transition:background 0.1s" onmouseover="this.style.background='var(--abu-terang)'" onmouseout="this.style.background=''" onclick="selectBayarWP(${w.id})">
+      <strong>${w.nama}</strong> <span style="color:var(--abu-gelap);font-size:0.8rem">— ${w.nop.substring(0,14)}... — ${w.dusun} RT ${w.rt}</span>
+      <div style="margin-top:4px">${statusBadge(w.payments[2026])}</div>
+    </div>`).join('')}</div>`:'<p style="font-size:0.8rem;color:var(--abu-gelap);padding:8px">Tidak ditemukan</p>';
+}
+
+function selectBayarWP(id){
+  selectedBayarWP = wpData.find(w=>w.id===id);
+  document.getElementById('bayar-search').value=selectedBayarWP.nama;
+  document.getElementById('bayar-wp-result').innerHTML='';
+  showBayarInfo(selectedBayarWP);
+}
+
+function showBayarInfo(w){
+  const tunggak = TAHUN_LIST.filter(y=>w.payments[y]==='tunggakan');
+  document.getElementById('bayar-info-detail').innerHTML=`
+    ${tunggak.length?`<div class="tunggakan-alert"><div class="tunggakan-icon">⚠️</div><div class="tunggakan-text"><h4>Ada Tunggakan</h4><p>Tahun: ${tunggak.join(', ')}</p></div></div>`:''}
+    <div class="info-row"><label>NOP</label><strong class="text-mono" style="font-size:0.8rem">${w.nop}</strong></div>
+    <div class="info-row"><label>Nama</label><strong>${w.nama}</strong></div>
+    <div class="info-row"><label>Lokasi</label><strong>${w.dusun} / RW ${w.rw} / RT ${w.rt}</strong></div>
+    <div class="info-row"><label>Status 2026</label><strong>${statusBadge(w.payments[2026])}</strong></div>
+    <div style="margin-top:16px"><h4 style="font-size:0.85rem;margin-bottom:8px;color:var(--teks-sekunder)">Status per tahun:</h4>
+    ${TAHUN_LIST.slice().reverse().map(y=>`<div class="info-row"><label>${y}</label><strong>${statusBadge(w.payments[y])}</strong></div>`).join('')}</div>`;
+}
+
+function previewBukti(input){
+  selectedBayarFile = input.files[0];
+  if(selectedBayarFile){
+    const reader=new FileReader();
+    reader.onload=e=>{ const img=document.getElementById('bukti-preview'); img.src=e.target.result; img.style.display='block'; };
+    reader.readAsDataURL(selectedBayarFile);
+  }
+}
+
+function submitBayar(){
+  if(!selectedBayarWP){ showToast('Pilih wajib pajak terlebih dahulu','error'); return; }
+  const tahun=parseInt(document.getElementById('bayar-tahun').value);
+  const ket=document.getElementById('bayar-ket').value;
+  // Add to pending
+  pendingList.unshift({
+    id:pendingList.length+1,nop:selectedBayarWP.nop,nama:selectedBayarWP.nama,
+    tahun,petugas:currentUser.nama,tanggal:new Date().toLocaleDateString('id'),
+    status:'pending',buktiUrl:null,ketAdmin:'',wpRef:selectedBayarWP
+  });
+  selectedBayarWP.payments[tahun]='pending';
+  showToast('✅ Bukti bayar berhasil diupload! Menunggu approval admin.');
+  selectedBayarWP=null; selectedBayarFile=null;
+  document.getElementById('bayar-search').value='';
+  document.getElementById('bayar-wp-result').innerHTML='';
+  document.getElementById('bayar-info-detail').innerHTML='<div class="empty-state"><div class="empty-icon">✅</div><p>Upload berhasil! Menunggu approval Admin Desa.</p></div>';
+  document.getElementById('bukti-preview').style.display='none';
+}
+
+function buildRiwayatPetugas(){
+  const myItems = pendingList.filter(p=>p.petugas===currentUser?.nama||true).slice(0,30);
+  document.getElementById('riwayat-petugas-tbody').innerHTML=myItems.map(p=>`<tr>
+    <td>${p.tanggal}</td>
+    <td class="text-mono" style="font-size:0.75rem">${p.nop.substring(0,14)}...</td>
+    <td><strong>${p.nama}</strong></td>
+    <td><strong>${p.tahun}</strong></td>
+    <td>${p.status==='pending'?'<span class="badge badge-pending">Menunggu</span>':p.status==='lunas'?'<span class="badge badge-lunas">Approved</span>':'<span class="badge badge-tunggakan">Ditolak</span>'}</td>
+    <td style="font-size:0.8rem;color:var(--abu-gelap)">${p.ketAdmin||'-'}</td>
+  </tr>`).join('');
+}
+
+// ==================== MODALS ====================
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+// ==================== TOAST ====================
+function showToast(msg, type=''){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');
+  t.innerHTML=(type==='error'?'❌':type==='warning'?'⚠️':'✅')+' '+msg;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(100%)'; t.style.transition='all 0.3s'; setTimeout(()=>t.remove(),300); },3500);
+}
+
+// Animate counters
+function animateCount(el, target){
+  let current=0; const step=Math.ceil(target/40);
+  const interval=setInterval(()=>{ current=Math.min(current+step,target); el.textContent=current.toLocaleString('id'); if(current>=target) clearInterval(interval); },30);
+}
+
+// ==================== Init public stats ====================
+setTimeout(()=>{
+  const tot=wpData.length;
+  const lunas26=wpData.filter(w=>w.payments[2026]==='lunas').length;
+  const pend26=wpData.filter(w=>w.payments[2026]==='pending').length;
+  const tung26=tot-lunas26-pend26;
+  const persen=Math.round(lunas26/tot*100);
+  animateCount(document.getElementById('pub-total-wp'),tot);
+  animateCount(document.getElementById('pub-lunas'),lunas26);
+  animateCount(document.getElementById('pub-tunggakan'),tung26);
+  animateCount(document.getElementById('pub-pending'),pend26);
+  document.getElementById('pub-persen').textContent=persen+'%';
+}, 2200);
+
+// Build initial public table
+setTimeout(buildPublicTable, 2300);
+</script>
+</body>
+</html>
