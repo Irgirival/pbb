@@ -3,1236 +3,672 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPBB – Sistem Informasi PBB Desa Kasomalang Kulon</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<style>
-/* ╔══════════════════════════════════════════════════════════════╗
-   ║  SIPBB – Design System                                        ║
-   ║  Earthy green gov. authority meets modern data dashboard      ║
-   ╚══════════════════════════════════════════════════════════════╝ */
-
-:root {
-  /* Palette */
-  --forest:      #0d5c35;
-  --forest-mid:  #1a7a4a;
-  --forest-light:#2da866;
-  --leaf:        #4ade80;
-  --gold:        #d4a017;
-  --gold-light:  #f5c842;
-  --cream:       #faf9f6;
-  --stone:       #f0ede6;
-  --border:      #e2ddd5;
-  --muted:       #8a8078;
-  --ink:         #1c1814;
-  --ink-2:       #3d3830;
-  --ink-3:       #5c574f;
-  --danger:      #c0392b;
-  --danger-soft: #fdf0ee;
-  --info:        #1e6faa;
-  --info-soft:   #eef5fb;
-  --warn:        #b87514;
-  --warn-soft:   #fef7e8;
-
-  /* Elevation */
-  --e1: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --e2: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
-  --e3: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
-
-  /* Radius */
-  --r:   10px;
-  --r-lg: 18px;
-  --r-xl: 28px;
-
-  /* Sidebar */
-  --sb-w: 252px;
-  --nav-h: 60px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: var(--cream);
-  color: var(--ink);
-  overflow-x: hidden;
-  line-height: 1.5;
-}
-
-/* ── Scrollbar ───────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-/* ── Typography scale ────────────────────────── */
-.display { font-family: 'Space Grotesk', sans-serif; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }
-.mono { font-family: 'JetBrains Mono', monospace; }
-
-/* ══════════════════════════════════════════════
-   LOADING SCREEN
-══════════════════════════════════════════════ */
-#loading-screen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--forest);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  transition: opacity .5s ease;
-}
-.load-logo {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.8rem; font-weight: 700;
-  color: #fff; letter-spacing: -.04em;
-}
-.load-logo em { color: var(--gold-light); font-style: normal; }
-.load-sub { color: rgba(255,255,255,.55); font-size: .82rem; margin-top: 6px; }
-.load-bar {
-  width: 160px; height: 2px;
-  background: rgba(255,255,255,.15);
-  border-radius: 2px; margin-top: 36px;
-  overflow: hidden;
-}
-.load-fill {
-  height: 100%; background: var(--gold-light);
-  border-radius: 2px;
-  animation: loadfill 1.8s cubic-bezier(.4,0,.2,1) forwards;
-}
-@keyframes loadfill { from{width:0} to{width:100%} }
-
-/* ══════════════════════════════════════════════
-   TOPBAR / NAVBAR
-══════════════════════════════════════════════ */
-#topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: var(--nav-h);
-  background: rgba(250,249,246,.96);
-  backdrop-filter: blur(16px) saturate(1.4);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 20px; gap: 16px;
-  box-shadow: var(--e1);
-}
-.topbar-brand {
-  display: flex; align-items: center; gap: 10px;
-  cursor: pointer; text-decoration: none; flex-shrink: 0;
-}
-.topbar-icon {
-  width: 36px; height: 36px; border-radius: 9px;
-  background: var(--forest);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700; font-size: .8rem; color: #fff;
-  letter-spacing: -.01em;
-  box-shadow: 0 2px 8px rgba(13,92,53,.3);
-}
-.topbar-name { font-weight: 700; font-size: .9rem; color: var(--ink); line-height: 1.2; }
-.topbar-name small { font-weight: 400; font-size: .72rem; color: var(--muted); display: block; }
-.topbar-sep { flex: 1; }
-.topbar-menu-toggle {
-  display: none; background: none; border: none;
-  width: 36px; height: 36px; cursor: pointer;
-  border-radius: 8px; font-size: 1.2rem;
-  color: var(--ink-2);
-}
-.topbar-menu-toggle:hover { background: var(--stone); }
-
-/* ── Buttons ─────────────────────────────────── */
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: 8px;
-  font-size: .82rem; font-weight: 600;
-  font-family: inherit; cursor: pointer;
-  transition: all .15s ease; border: 1.5px solid transparent;
-  white-space: nowrap; line-height: 1;
-}
-.btn:active { transform: scale(.97); }
-.btn-forest  { background: var(--forest);  color: #fff; border-color: var(--forest); }
-.btn-forest:hover { background: var(--forest-mid); }
-.btn-outline { background: transparent; color: var(--forest); border-color: var(--forest); }
-.btn-outline:hover { background: var(--forest); color: #fff; }
-.btn-ghost   { background: transparent; color: var(--ink-3); border-color: transparent; }
-.btn-ghost:hover { background: var(--stone); color: var(--ink); }
-.btn-danger  { background: var(--danger); color: #fff; border-color: var(--danger); }
-.btn-danger:hover { background: #a93226; }
-.btn-success { background: var(--forest-light); color: #fff; border-color: var(--forest-light); }
-.btn-success:hover { background: var(--forest-mid); }
-.btn-gold    { background: var(--gold); color: #fff; border-color: var(--gold); }
-.btn-sm  { padding: 5px 11px; font-size: .76rem; }
-.btn-lg  { padding: 12px 24px; font-size: .95rem; border-radius: 10px; }
-.btn-block { width: 100%; justify-content: center; }
-
-/* ══════════════════════════════════════════════
-   PAGES
-══════════════════════════════════════════════ */
-.page { display: none; min-height: 100vh; padding-top: var(--nav-h); }
-.page.active { display: block; }
-
-/* ══════════════════════════════════════════════
-   PUBLIC PAGE – HERO
-══════════════════════════════════════════════ */
-#page-public { background: var(--cream); }
-
-.hero {
-  background: var(--forest);
-  padding: 52px 24px 0;
-  position: relative; overflow: hidden;
-}
-/* subtle grain texture */
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
-/* large circle accent */
-.hero::after {
-  content: '';
-  position: absolute; right: -120px; top: -120px;
-  width: 500px; height: 500px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(77,222,128,.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.hero-inner {
-  max-width: 1140px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr auto;
-  gap: 32px; align-items: end;
-  position: relative; z-index: 1;
-}
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
-  color: rgba(255,255,255,.85); font-size: .72rem; font-weight: 600;
-  padding: 5px 13px; border-radius: 100px; margin-bottom: 18px;
-  letter-spacing: .04em; text-transform: uppercase;
-}
-.hero-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(1.9rem, 4vw, 3.2rem);
-  font-weight: 700; line-height: 1.1; letter-spacing: -.03em;
-  color: #fff; margin-bottom: 14px;
-}
-.hero-title .accent { color: var(--gold-light); }
-.hero-desc { color: rgba(255,255,255,.65); font-size: .9rem; line-height: 1.65; max-width: 440px; }
-
-/* hero stats – floating cards */
-.hero-stats {
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: var(--r-lg);
-  padding: 20px 24px;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 16px; min-width: 240px;
-  backdrop-filter: blur(8px);
-}
-.hstat {}
-.hstat-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.7rem; font-weight: 700;
-  color: var(--gold-light); line-height: 1;
-}
-.hstat-lbl { font-size: .7rem; color: rgba(255,255,255,.55); margin-top: 3px; font-weight: 500; }
-
-/* ── Wave divider ─────────────────────────────── */
-.hero-wave {
-  display: block; width: 100%; margin-top: 36px;
-  fill: var(--cream);
-}
-
-/* ── Public body ──────────────────────────────── */
-.pub-body { max-width: 1140px; margin: 0 auto; padding: 36px 24px 60px; }
-
-/* section header */
-.sec-head { margin-bottom: 28px; }
-.sec-head h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.3rem; font-weight: 700;
-  letter-spacing: -.02em; color: var(--ink);
-}
-.sec-head p { font-size: .82rem; color: var(--muted); margin-top: 3px; }
-
-/* ── Chart grid ───────────────────────────────── */
-.chart-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px; margin-bottom: 32px;
-}
-.chart-card {
-  background: #fff; border-radius: var(--r-lg);
-  padding: 22px 24px; border: 1px solid var(--border);
-  box-shadow: var(--e1);
-}
-.chart-card h3 { font-size: .9rem; font-weight: 700; color: var(--ink); }
-.chart-card p  { font-size: .75rem; color: var(--muted); margin: 3px 0 18px; }
-.chart-wrap { position: relative; height: 210px; }
-
-/* ── Year pill tabs ───────────────────────────── */
-.year-pills { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-.ypill {
-  padding: 5px 13px; border-radius: 100px;
-  font-size: .76rem; font-weight: 600;
-  cursor: pointer; border: 1.5px solid var(--border);
-  background: #fff; color: var(--muted);
-  transition: all .15s;
-}
-.ypill.active { background: var(--forest); color: #fff; border-color: var(--forest); }
-.ypill:hover:not(.active) { border-color: var(--forest); color: var(--forest); }
-
-/* ── Dusun cards ──────────────────────────────── */
-.dusun-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px; margin-bottom: 36px;
-}
-.dusun-card {
-  background: #fff; border-radius: var(--r-lg);
-  padding: 20px; border: 1px solid var(--border);
-  box-shadow: var(--e1); position: relative; overflow: hidden;
-}
-.dusun-card::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--forest-mid), var(--leaf));
-}
-.dusun-name {
-  font-weight: 700; font-size: .9rem;
-  color: var(--forest); margin-bottom: 14px;
-}
-.dusun-row { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 7px; }
-.dusun-row label { color: var(--muted); }
-.dusun-row strong { font-weight: 600; }
-.pbar-wrap { height: 5px; background: var(--stone); border-radius: 9px; overflow: hidden; margin-top: 14px; }
-.pbar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--forest-mid), var(--leaf));
-  border-radius: 9px; transition: width 1.2s cubic-bezier(.4,0,.2,1);
-  width: 0;
-}
-.pbar-pct { font-size: .72rem; font-weight: 700; color: var(--forest-mid); margin-top: 6px; }
-
-/* ── Search card ──────────────────────────────── */
-.search-card {
-  background: #fff; border-radius: var(--r-lg);
-  border: 1px solid var(--border); box-shadow: var(--e1);
-  padding: 24px; margin-bottom: 0;
-}
-.search-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-.search-wrap { flex: 1; min-width: 200px; position: relative; }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: .85rem; pointer-events: none; }
-.search-wrap input,
-.fselect {
-  width: 100%; padding: 10px 14px 10px 36px;
-  border: 1.5px solid var(--border); border-radius: 9px;
-  font-size: .85rem; font-family: inherit;
-  background: var(--cream); color: var(--ink);
-  transition: border-color .15s, box-shadow .15s;
-}
-.fselect { padding-left: 12px; appearance: none; }
-.search-wrap input:focus, .fselect:focus {
-  outline: none; border-color: var(--forest);
-  box-shadow: 0 0 0 3px rgba(13,92,53,.09);
-  background: #fff;
-}
-
-/* ══════════════════════════════════════════════
-   TABLE
-══════════════════════════════════════════════ */
-.tbl-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-th {
-  background: var(--stone); padding: 11px 14px;
-  text-align: left; font-weight: 700; font-size: .7rem;
-  text-transform: uppercase; letter-spacing: .04em;
-  color: var(--muted); border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-td {
-  padding: 11px 14px; border-bottom: 1px solid var(--stone);
-  vertical-align: middle;
-}
-tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--cream); }
-.td-name { font-weight: 600; color: var(--ink); }
-.td-sub  { font-size: .73rem; color: var(--muted); margin-top: 1px; }
-
-/* ── Badges ───────────────────────────────────── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 9px; border-radius: 100px;
-  font-size: .68rem; font-weight: 700; white-space: nowrap;
-}
-.b-lunas    { background: rgba(13,92,53,.1);   color: var(--forest-mid); }
-.b-pending  { background: rgba(184,117,20,.1); color: var(--warn); }
-.b-tunggak  { background: rgba(192,57,43,.1);  color: var(--danger); }
-.b-approved { background: rgba(30,111,170,.1); color: var(--info); }
-.b-role-admin { background: rgba(212,160,23,.15); color: var(--gold); }
-.b-role-rt    { background: rgba(30,111,170,.1); color: var(--info); }
-.b-role-kol   { background: rgba(13,92,53,.1);   color: var(--forest-mid); }
-
-/* ══════════════════════════════════════════════
-   LOGIN PAGE
-══════════════════════════════════════════════ */
-#page-login {
-  background: var(--forest);
-  display: none; min-height: 100vh;
-  padding-top: var(--nav-h);
-  align-items: center; justify-content: center;
-}
-#page-login.active { display: flex; }
-.login-bg-circle {
-  position: fixed; z-index: 0;
-  border-radius: 50%;
-  pointer-events: none;
-}
-.login-c1 { width: 600px; height: 600px; right: -200px; top: -100px; background: radial-gradient(circle, rgba(77,222,128,.12) 0%, transparent 70%); }
-.login-c2 { width: 400px; height: 400px; left: -150px; bottom: -100px; background: radial-gradient(circle, rgba(212,160,23,.1) 0%, transparent 70%); }
-
-.login-card {
-  position: relative; z-index: 1;
-  background: #fff; border-radius: var(--r-xl);
-  padding: 40px 36px; width: 100%;
-  max-width: 420px; margin: 24px;
-  box-shadow: 0 24px 80px rgba(0,0,0,.25);
-  animation: pop-in .4s cubic-bezier(.34,1.56,.64,1) both;
-}
-@keyframes pop-in { from{opacity:0;transform:scale(.9) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
-
-.login-top { text-align: center; margin-bottom: 32px; }
-.login-emblem {
-  width: 62px; height: 62px; border-radius: 16px;
-  background: var(--forest); margin: 0 auto 16px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 24px rgba(13,92,53,.35);
-}
-.login-emblem svg { width: 32px; height: 32px; fill: none; stroke: #fff; stroke-width: 2; }
-.login-top h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: -.02em; }
-.login-top p { color: var(--muted); font-size: .82rem; margin-top: 4px; }
-
-.fgroup { margin-bottom: 14px; }
-.flabel { display: block; font-size: .75rem; font-weight: 600; color: var(--ink-3); margin-bottom: 5px; }
-.finput {
-  width: 100%; padding: 10px 13px;
-  border: 1.5px solid var(--border); border-radius: 9px;
-  font-size: .875rem; font-family: inherit;
-  background: var(--cream); color: var(--ink);
-  transition: border-color .15s, box-shadow .15s;
-}
-.finput:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(13,92,53,.09); background: #fff; }
-.fselect-field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8078' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-
-.demo-strip { margin-top: 20px; padding: 14px; background: var(--cream); border-radius: 10px; border: 1px solid var(--border); }
-.demo-strip p { font-size: .72rem; color: var(--muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
-.demo-pill {
-  display: inline-block; padding: 4px 11px; border-radius: 7px;
-  font-size: .74rem; font-weight: 600; cursor: pointer;
-  background: #fff; border: 1px solid var(--border);
-  color: var(--ink-3); margin: 2px;
-  transition: all .15s;
-}
-.demo-pill:hover { background: var(--forest); color: #fff; border-color: var(--forest); }
-
-/* ══════════════════════════════════════════════
-   APP LAYOUT (sidebar)
-══════════════════════════════════════════════ */
-.app-wrap { display: flex; min-height: calc(100vh - var(--nav-h)); }
-
-.sidebar {
-  width: var(--sb-w); flex-shrink: 0;
-  background: #fff; border-right: 1px solid var(--border);
-  position: fixed; top: var(--nav-h); bottom: 0;
-  overflow-y: auto; z-index: 50;
-  display: flex; flex-direction: column;
-  transition: transform .3s cubic-bezier(.4,0,.2,1);
-  box-shadow: var(--e1);
-}
-
-/* sidebar user card */
-.sb-user {
-  padding: 20px 16px 18px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 100%);
-  flex-shrink: 0;
-}
-.sb-avatar {
-  width: 42px; height: 42px; border-radius: 12px;
-  background: rgba(255,255,255,.2);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 1.1rem; color: #fff;
-  margin-bottom: 10px;
-  border: 2px solid rgba(255,255,255,.25);
-}
-.sb-name { font-weight: 700; font-size: .9rem; color: #fff; }
-.sb-role { font-size: .72rem; color: rgba(255,255,255,.65); margin-top: 2px; }
-.sb-badge-wrap { margin-top: 8px; }
-.sb-badge {
-  display: inline-block; padding: 2px 9px; border-radius: 100px;
-  font-size: .65rem; font-weight: 700; letter-spacing: .04em;
-}
-.sb-badge-admin { background: rgba(212,160,23,.25); color: var(--gold-light); }
-.sb-badge-rt     { background: rgba(255,255,255,.15); color: rgba(255,255,255,.8); }
-.sb-badge-kol    { background: rgba(77,222,128,.2);  color: var(--leaf); }
-
-/* nav items */
-.nav-grp-label {
-  padding: 12px 16px 5px;
-  font-size: .63rem; font-weight: 700; letter-spacing: .07em;
-  text-transform: uppercase; color: var(--muted);
-}
-.nav-it {
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 16px; cursor: pointer;
-  font-size: .825rem; font-weight: 500; color: var(--ink-3);
-  border-left: 3px solid transparent;
-  transition: all .15s;
-}
-.nav-it:hover { background: var(--cream); color: var(--ink); }
-.nav-it.active {
-  background: rgba(13,92,53,.07);
-  color: var(--forest);
-  border-left-color: var(--forest);
-  font-weight: 600;
-}
-.nav-it-icon { font-size: .95rem; width: 20px; text-align: center; flex-shrink: 0; }
-.nav-chip {
-  margin-left: auto; background: var(--danger); color: #fff;
-  font-size: .62rem; padding: 1px 6px; border-radius: 100px;
-  font-weight: 700;
-}
-
-/* main area */
-.main-area { margin-left: var(--sb-w); padding: 28px; flex: 1; }
-.sec { display: none; animation: fade-up .25s ease; }
-.sec.active { display: block; }
-@keyframes fade-up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-
-/* ── Page header ──────────────────────────────── */
-.pg-head { margin-bottom: 24px; }
-.pg-head h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.3rem; font-weight: 700; letter-spacing: -.02em;
-}
-.pg-head p { font-size: .82rem; color: var(--muted); margin-top: 3px; }
-.pg-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-
-/* ── KPI grid ─────────────────────────────────── */
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.kpi-card {
-  background: #fff; border-radius: var(--r-lg);
-  padding: 20px; border: 1px solid var(--border);
-  box-shadow: var(--e1); position: relative; overflow: hidden;
-  animation: fade-up .3s ease both;
-}
-.kpi-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.kpi-icon-wrap {
-  width: 38px; height: 38px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
-}
-.ki-green { background: rgba(13,92,53,.1); }
-.ki-red   { background: rgba(192,57,43,.1); }
-.ki-gold  { background: rgba(212,160,23,.1); }
-.ki-blue  { background: rgba(30,111,170,.1); }
-.kpi-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.75rem; font-weight: 700;
-  letter-spacing: -.03em; line-height: 1;
-}
-.kv-green { color: var(--forest-mid); }
-.kv-red   { color: var(--danger); }
-.kv-gold  { color: var(--warn); }
-.kv-blue  { color: var(--info); }
-.kpi-lbl  { font-size: .74rem; color: var(--muted); margin-top: 4px; }
-.kpi-trend { font-size: .72rem; font-weight: 600; margin-top: 8px; display: flex; align-items: center; gap: 3px; }
-.kt-up   { color: var(--forest-light); }
-.kt-down { color: var(--danger); }
-.kt-neu  { color: var(--muted); }
-
-/* ── White card ───────────────────────────────── */
-.wcard {
-  background: #fff; border-radius: var(--r-lg);
-  border: 1px solid var(--border); box-shadow: var(--e1);
-  padding: 22px; margin-bottom: 20px;
-}
-.wcard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
-.wcard-title { font-size: .95rem; font-weight: 700; color: var(--ink); }
-.wcard-sub   { font-size: .75rem; color: var(--muted); margin-top: 2px; }
-
-/* ── Filter row ───────────────────────────────── */
-.filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-
-/* ── Info rows ────────────────────────────────── */
-.info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--stone); font-size: .84rem; }
-.info-row:last-child { border-bottom: none; }
-.info-row label { color: var(--muted); }
-.info-row strong { font-weight: 600; text-align: right; }
-
-/* ── Alert banner ─────────────────────────────── */
-.alert {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 14px 18px; border-radius: var(--r); margin-bottom: 16px;
-  border: 1px solid;
-}
-.alert-danger { background: var(--danger-soft); border-color: rgba(192,57,43,.25); }
-.alert-warn   { background: var(--warn-soft);   border-color: rgba(184,117,20,.25); }
-.alert-icon  { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
-.alert-body h4 { font-size: .84rem; font-weight: 700; }
-.alert-body p  { font-size: .77rem; margin-top: 2px; color: var(--ink-3); }
-
-/* ── Upload area ──────────────────────────────── */
-.upload-zone {
-  border: 2px dashed var(--border); border-radius: var(--r);
-  padding: 28px; text-align: center; cursor: pointer;
-  transition: all .15s; background: var(--cream);
-}
-.upload-zone:hover, .upload-zone.drag {
-  border-color: var(--forest-mid);
-  background: rgba(13,92,53,.04);
-}
-.upload-zone input { display: none; }
-.upload-zone .up-icon { font-size: 2rem; margin-bottom: 8px; }
-.upload-zone p { font-size: .8rem; color: var(--muted); }
-.up-preview { max-width: 100%; max-height: 220px; border-radius: 8px; margin-top: 10px; display: none; }
-
-/* ══════════════════════════════════════════════
-   MODAL
-══════════════════════════════════════════════ */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  background: rgba(28,24,20,.55); backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-  opacity: 0; pointer-events: none;
-  transition: opacity .25s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: #fff; border-radius: var(--r-xl);
-  padding: 32px; max-width: 560px; width: 100%;
-  max-height: 90vh; overflow-y: auto;
-  transform: scale(.94) translateY(10px);
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-  box-shadow: 0 32px 80px rgba(0,0,0,.2);
-}
-.modal-overlay.open .modal { transform: scale(1) translateY(0); }
-.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-.modal-head h3 { font-size: 1.05rem; font-weight: 700; }
-.modal-close {
-  background: var(--stone); border: none; cursor: pointer;
-  width: 30px; height: 30px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .9rem; color: var(--ink-3);
-  transition: background .15s;
-}
-.modal-close:hover { background: var(--border); }
-
-/* ══════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════ */
-#toasts {
-  position: fixed; bottom: 20px; right: 20px; z-index: 9000;
-  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
-}
-.toast {
-  background: var(--ink); color: #fff;
-  padding: 12px 18px; border-radius: 11px;
-  font-size: .82rem; font-weight: 500;
-  display: flex; align-items: center; gap: 8px;
-  box-shadow: var(--e3); min-width: 240px; max-width: 340px;
-  animation: toast-in .3s cubic-bezier(.34,1.56,.64,1) both;
-  border-left: 3px solid var(--forest-light);
-  pointer-events: all;
-}
-.toast.t-error   { border-left-color: var(--danger); }
-.toast.t-warning { border-left-color: var(--gold); }
-@keyframes toast-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
-
-/* ══════════════════════════════════════════════
-   SEARCH DROPDOWN (bayar)
-══════════════════════════════════════════════ */
-.search-drop {
-  border: 1px solid var(--border); border-radius: var(--r);
-  overflow: hidden; background: #fff;
-  box-shadow: var(--e2); margin-top: 4px;
-}
-.search-drop-item {
-  padding: 10px 14px; cursor: pointer;
-  font-size: .84rem; border-bottom: 1px solid var(--stone);
-  transition: background .1s;
-}
-.search-drop-item:last-child { border-bottom: none; }
-.search-drop-item:hover { background: var(--cream); }
-
-/* ══════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════ */
-@media (max-width: 900px) {
-  .chart-grid { grid-template-columns: 1fr; }
-  .hero-inner { grid-template-columns: 1fr; }
-  .hero-stats { display: none; }
-}
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); box-shadow: none; }
-  .sidebar.open { transform: translateX(0); box-shadow: var(--e3); }
-  .main-area { margin-left: 0; padding: 16px; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
-  .topbar-menu-toggle { display: flex; align-items: center; justify-content: center; }
-  #overlay-sb { display: block; }
-}
-@media (max-width: 480px) {
-  .kpi-grid { grid-template-columns: 1fr; }
-  .login-card { padding: 28px 22px; }
-}
-
-/* sidebar overlay for mobile */
-#overlay-sb {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.4); z-index: 49;
-  backdrop-filter: blur(2px);
-}
-
-/* Empty state */
-.empty { text-align: center; padding: 48px 24px; color: var(--muted); }
-.empty .eico { font-size: 2.5rem; margin-bottom: 10px; }
-.empty p { font-size: .85rem; }
-</style>
+<title>SIPBB – Desa Kasomalang Kulon</title>
+<meta name="description" content="Sistem Informasi Pajak Bumi dan Bangunan Desa Kasomalang Kulon, Subang">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-<!-- Loading -->
+<!-- ░░ LOADING ░░ -->
 <div id="loading-screen">
-  <div class="load-logo">SIP<em>BB</em></div>
-  <div class="load-sub">Sistem Informasi PBB – Desa Kasomalang Kulon</div>
-  <div class="load-bar"><div class="load-fill"></div></div>
+  <div class="ls-emblem">🏛️</div>
+  <div class="ls-title">SIP<b>BB</b></div>
+  <div class="ls-sub">Desa Kasomalang Kulon · Subang</div>
+  <div class="ls-track"><div class="ls-fill"></div></div>
 </div>
 
-<!-- Toasts -->
-<div id="toasts"></div>
+<!-- ░░ TOAST ░░ -->
+<div id="toast-wrap"></div>
 
-<!-- Sidebar overlay (mobile) -->
-<div id="overlay-sb" onclick="toggleSidebar(false)"></div>
-
-<!-- ─────────────── TOPBAR ─────────────── -->
-<header id="topbar">
-  <button class="topbar-menu-toggle" onclick="toggleSidebar()" id="menu-toggle">☰</button>
-  <a class="topbar-brand" onclick="showPage('public')">
-    <div class="topbar-icon">PBB</div>
-    <div class="topbar-name">
+<!-- ░░ NAVBAR ░░ -->
+<nav id="navbar">
+  <a class="nb-brand" onclick="showPage('public')">
+    <div class="nb-logo">PBB</div>
+    <div class="nb-name">
       SIPBB Kasomalang Kulon
-      <small>Desa Kasomalang Kulon, Kab. Subang</small>
+      <small>Desa Kasomalang Kulon, Subang</small>
     </div>
   </a>
-  <div class="topbar-sep"></div>
-  <button class="btn btn-ghost btn-sm" onclick="showPage('public')" id="btn-pub">🏠 Publik</button>
-  <button class="btn btn-outline btn-sm" onclick="showPage('login')" id="btn-login">Masuk</button>
-  <button class="btn btn-danger btn-sm" onclick="doLogout()" id="btn-logout" style="display:none">Keluar</button>
-</header>
+  <div class="nb-actions">
+    <button class="btn btn-ghost"    onclick="showPage('public')"  id="btn-nav-public">🏠 Dashboard</button>
+    <button class="btn btn-outline btn-sm" onclick="showPage('login')" id="btn-nav-login">Masuk</button>
+    <button class="btn btn-danger  btn-sm" onclick="handleLogout()"    id="btn-nav-logout" style="display:none">Keluar</button>
+    <!-- Mobile hamburger -->
+    <button class="btn btn-ghost btn-sm" id="hamburger" style="display:none">☰</button>
+  </div>
+</nav>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: PUBLIC
-═══════════════════════════════════════════ -->
+
+<!-- ╔═══════════════════════════════════════╗ -->
+<!-- ║  PAGE: PUBLIC                         ║ -->
+<!-- ╚═══════════════════════════════════════╝ -->
 <div class="page active" id="page-public">
 
-  <!-- Hero -->
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-inner">
-      <div>
-        <div class="hero-eyebrow">🏛️ Transparansi Pemerintah Desa</div>
-        <h1 class="hero-title display">
-          Sistem Informasi<br>PBB <span class="accent">Kasomalang Kulon</span>
-        </h1>
-        <p class="hero-desc">
-          Pantau status Pajak Bumi dan Bangunan Desa Kasomalang Kulon tahun 2020–2026 secara transparan. Data diperbarui setiap hari.
-        </p>
-      </div>
-      <div class="hero-stats" id="hero-stats">
-        <div class="hstat">
-          <div class="hstat-val" id="hs-total">—</div>
-          <div class="hstat-lbl">Total WP</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-val" id="hs-lunas">—</div>
-          <div class="hstat-lbl">Lunas 2026</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-val" id="hs-persen">—</div>
-          <div class="hstat-lbl">Tingkat Lunas</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-val" id="hs-dusun">7</div>
-          <div class="hstat-lbl">Dusun</div>
-        </div>
+      <div class="hero-pill">📊 Transparansi PBB – Desa Kasomalang Kulon</div>
+      <h1 class="hero-h1">Sistem Informasi<br><em>Pajak Bumi & Bangunan</em></h1>
+      <p class="hero-lead">Pantau status pembayaran PBB tahun 2020–2026 secara transparan dan real-time untuk seluruh warga Desa Kasomalang Kulon.</p>
+      <div class="hero-stats">
+        <div class="hstat" style="animation-delay:.1s"><div class="hstat-val" id="pub-total-wp">—</div><div class="hstat-lbl">Total Wajib Pajak</div></div>
+        <div class="hstat" style="animation-delay:.2s"><div class="hstat-val" id="pub-lunas">—</div><div class="hstat-lbl">Sudah Lunas 2026</div></div>
+        <div class="hstat" style="animation-delay:.3s"><div class="hstat-val" id="pub-tunggakan">—</div><div class="hstat-lbl">Belum Lunas 2026</div></div>
+        <div class="hstat" style="animation-delay:.4s"><div class="hstat-val" id="pub-pending">—</div><div class="hstat-lbl">Menunggu Verifikasi</div></div>
+        <div class="hstat" style="animation-delay:.5s"><div class="hstat-val" id="pub-persen">—</div><div class="hstat-lbl">Tingkat Pelunasan</div></div>
       </div>
     </div>
-    <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none">
-      <path d="M0,40 C360,70 1080,10 1440,40 L1440,60 L0,60 Z"/>
-    </svg>
   </section>
 
-  <div class="pub-body">
+  <!-- PUBLIC CONTENT -->
+  <div class="pub-content">
 
-    <!-- Year pills -->
-    <div class="year-pills" id="year-pills"></div>
+    <!-- Year tabs -->
+    <div class="section-head">
+      <h2>📊 Analitik Pembayaran PBB</h2>
+      <p>Rekapitulasi per tahun, per dusun, per RW dan RT</p>
+    </div>
+    <div class="year-tabs" id="pub-year-tabs"></div>
 
     <!-- Charts -->
-    <div class="sec-head">
-      <h2>📊 Analitik Pembayaran PBB</h2>
-      <p>Tren pelunasan per tahun dan distribusi status saat ini</p>
-    </div>
     <div class="chart-grid">
       <div class="chart-card">
-        <h3>Tren Pelunasan 2020–2026</h3>
-        <p>Persentase wajib pajak lunas per tahun</p>
+        <div class="chart-card-head"><h3>Tren Pelunasan 2020–2026</h3><p>Persentase lunas per tahun ajaran</p></div>
         <div class="chart-wrap"><canvas id="chart-tren"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Distribusi Status 2026</h3>
-        <p>Komposisi lunas, pending, dan tunggakan</p>
+        <div class="chart-card-head"><h3>Status Tahun Ini (2026)</h3><p>Distribusi status pembayaran saat ini</p></div>
         <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Rekapitulasi per RW</h3>
-        <p>Lunas vs tunggakan tiap RW tahun 2026</p>
+        <div class="chart-card-head"><h3>Rekapitulasi Per RW</h3><p>Jumlah lunas vs tunggakan per RW</p></div>
         <div class="chart-wrap"><canvas id="chart-rw"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Progress Lunas per RT</h3>
-        <p>Persentase pelunasan tiap RT tahun 2026</p>
+        <div class="chart-card-head"><h3>Progress Per RT</h3><p>Persentase pelunasan tiap RT</p></div>
         <div class="chart-wrap"><canvas id="chart-rt"></canvas></div>
       </div>
     </div>
 
-    <!-- Dusun cards -->
-    <div class="sec-head">
-      <h2>🏘️ Rekap Per Dusun</h2>
-      <p>Status pembayaran berdasarkan wilayah dusun tahun 2026</p>
+    <!-- Dusun -->
+    <div class="section-head">
+      <h2>🏘️ Status Per Dusun</h2>
+      <p>Ringkasan pembayaran berdasarkan wilayah</p>
     </div>
-    <div class="dusun-grid" id="dusun-grid"></div>
+    <div class="dusun-grid" id="rw-cards"></div>
 
-    <!-- Search table -->
-    <div class="sec-head">
-      <h2>🔍 Cek Status Wajib Pajak</h2>
-      <p>Cari berdasarkan nama atau NOP untuk melihat status pembayaran</p>
-    </div>
-    <div class="search-card">
-      <div class="search-row">
+    <!-- Cek Status WP -->
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <h3>🔍 Cek Status Wajib Pajak</h3>
+        <p>Masukkan NOP atau nama untuk melihat riwayat pembayaran</p>
+      </div>
+      <div class="filter-row">
         <div class="search-wrap" style="flex:2">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Cari nama atau NOP…" id="pub-q" oninput="pubSearch()">
+          <span class="icon">🔍</span>
+          <input type="text" placeholder="Cari nama atau NOP…" id="pub-search" oninput="pubSearch()">
         </div>
-        <select class="fselect" id="pub-status" onchange="pubSearch()" style="min-width:160px">
+        <select class="sel-filter" id="pub-filter-status" onchange="pubSearch()">
           <option value="">Semua Status</option>
           <option value="lunas">Lunas</option>
           <option value="pending">Pending</option>
           <option value="tunggakan">Tunggakan</option>
         </select>
       </div>
-      <div class="tbl-wrap">
+      <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>NOP</th><th>Nama WP</th><th>Lokasi</th><th>2024</th><th>2025</th><th>2026</th><th>Tunggakan</th></tr>
+            <tr><th>NOP</th><th>Nama WP</th><th>RW / RT</th><th>2024</th><th>2025</th><th>2026</th><th>Tunggakan</th><th>Total Tagihan</th></tr>
           </thead>
-          <tbody id="pub-tbody"></tbody>
+          <tbody id="pub-table-body"></tbody>
         </table>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: LOGIN
-═══════════════════════════════════════════ -->
+  </div><!-- /pub-content -->
+</div><!-- /page-public -->
+
+
+<!-- ╔═══════════════════════════════════════╗ -->
+<!-- ║  PAGE: LOGIN                          ║ -->
+<!-- ╚═══════════════════════════════════════╝ -->
 <div class="page" id="page-login">
-  <div class="login-bg-circle login-c1"></div>
-  <div class="login-bg-circle login-c2"></div>
   <div class="login-card">
-    <div class="login-top">
-      <div class="login-emblem">
-        <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21V13h6v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <h2>Masuk ke SIPBB</h2>
-      <p>Desa Kasomalang Kulon, Kab. Subang</p>
-    </div>
-    <div class="fgroup">
-      <label class="flabel">Role / Jabatan</label>
-      <select class="finput fselect-field" id="l-role">
+    <div class="login-logo">🏛️</div>
+    <h2>Masuk ke SIPBB</h2>
+    <p class="subtitle">Desa Kasomalang Kulon</p>
+
+    <div class="form-group">
+      <label class="form-label">Role / Jabatan</label>
+      <select class="form-input form-select" id="login-role">
         <option value="admin">Admin Desa</option>
         <option value="kolektor">Kolektor</option>
         <option value="rt">Petugas RT</option>
       </select>
     </div>
-    <div class="fgroup">
-      <label class="flabel">Username</label>
-      <input class="finput" type="text" id="l-user" placeholder="Username">
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="login-user" placeholder="Masukkan username" autocomplete="username">
     </div>
-    <div class="fgroup">
-      <label class="flabel">Password</label>
-      <input class="finput" type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn btn-forest btn-lg btn-block" style="margin-top:8px" onclick="doLogin()">Masuk →</button>
-    <button class="btn btn-ghost btn-block" style="margin-top:8px;font-size:.8rem" onclick="showPage('public')">← Kembali ke Dashboard Publik</button>
-    <div class="demo-strip">
-      <p>Demo login cepat</p>
-      <span class="demo-pill" onclick="quickFill('admin','admin','admin123')">Admin Desa</span>
-      <span class="demo-pill" onclick="quickFill('kolektor','kolektor1','kolektor123')">Kolektor</span>
-      <span class="demo-pill" onclick="quickFill('rt','rt001','rt123')">Petugas RT</span>
+    <button class="btn btn-primary btn-lg btn-block" onclick="doLogin()" style="margin-top:8px">Masuk</button>
+    <button class="btn btn-ghost btn-block" onclick="showPage('public')" style="margin-top:6px;font-size:.8rem">← Kembali ke Dashboard Publik</button>
+
+    <div class="login-demo">
+      <p>Demo Login Cepat</p>
+      <div class="demo-btns">
+        <button class="demo-btn" onclick="quickLogin('admin','admin','admin123')">👤 Admin Desa</button>
+        <button class="demo-btn" onclick="quickLogin('kolektor','kolektor1','kolektor123')">📋 Kolektor</button>
+        <button class="demo-btn" onclick="quickLogin('rt','rt001','rt123')">🏠 Petugas RT</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: APP
-═══════════════════════════════════════════ -->
-<div class="page" id="page-app">
-  <div class="app-wrap">
 
-    <!-- ── Sidebar ── -->
+<!-- ╔═══════════════════════════════════════╗ -->
+<!-- ║  PAGE: APP (Sidebar Layout)           ║ -->
+<!-- ╚═══════════════════════════════════════╝ -->
+<div class="page" id="page-app">
+  <div class="app-layout">
+
+    <!-- ── SIDEBAR ── -->
     <aside class="sidebar" id="sidebar">
       <div class="sb-user">
-        <div class="sb-avatar" id="sb-av">A</div>
+        <div class="sb-avatar" id="sb-avatar">A</div>
         <div class="sb-name" id="sb-name">Admin</div>
         <div class="sb-role" id="sb-role">Administrator</div>
-        <div class="sb-badge-wrap">
-          <span class="sb-badge sb-badge-admin" id="sb-badge">ADMIN</span>
+        <span class="role-pill pill-admin" id="sb-badge">ADMIN</span>
+      </div>
+
+      <!-- ADMIN MENU -->
+      <div id="menu-admin" style="display:none">
+        <div class="nav-group-label">Utama</div>
+        <div class="nav-item active" id="nav-dashboard"  onclick="showSection('dashboard')">
+          <span class="icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" id="nav-data-wp" onclick="showSection('data-wp')">
+          <span class="icon">👥</span> Data Wajib Pajak
+        </div>
+        <div class="nav-item" id="nav-approval" onclick="showSection('approval')">
+          <span class="icon">✅</span> Approval Pembayaran
+          <span class="nav-badge" id="badge-approval" style="display:none">0</span>
+        </div>
+        <div class="nav-group-label">Laporan</div>
+        <div class="nav-item" id="nav-rekap"   onclick="showSection('rekap')">
+          <span class="icon">📋</span> Rekap Tunggakan
+        </div>
+        <div class="nav-item" id="nav-riwayat" onclick="showSection('riwayat')">
+          <span class="icon">🕐</span> Riwayat Bayar
+        </div>
+        <div class="nav-group-label">Manajemen</div>
+        <div class="nav-item" id="nav-petugas" onclick="showSection('petugas')">
+          <span class="icon">👮</span> Manajemen Petugas
+        </div>
+        <div class="nav-item" id="nav-import" onclick="showSection('import-data')">
+          <span class="icon">📥</span> Import Data Excel
         </div>
       </div>
 
-      <!-- Admin menu -->
-      <nav id="menu-admin" style="display:none">
-        <div class="nav-grp-label">Utama</div>
-        <div class="nav-it active" id="ni-dashboard" onclick="showSec('dashboard')">
-          <span class="nav-it-icon">📊</span> Dashboard
+      <!-- PETUGAS MENU -->
+      <div id="menu-petugas" style="display:none">
+        <div class="nav-group-label">Utama</div>
+        <div class="nav-item active" id="nav-dp" onclick="showSection('dashboard-petugas')">
+          <span class="icon">📊</span> Dashboard Saya
         </div>
-        <div class="nav-it" id="ni-data-wp" onclick="showSec('data-wp')">
-          <span class="nav-it-icon">👥</span> Data Wajib Pajak
+        <div class="nav-item" id="nav-bayar" onclick="showSection('bayar-wp')">
+          <span class="icon">💳</span> Input Pembayaran
         </div>
-        <div class="nav-it" id="ni-approval" onclick="showSec('approval')">
-          <span class="nav-it-icon">✅</span> Approval Bayar
-          <span class="nav-chip" id="chip-approval" style="display:none">0</span>
+        <div class="nav-item" id="nav-rp" onclick="showSection('riwayat-petugas')">
+          <span class="icon">🕐</span> Riwayat Upload
         </div>
-        <div class="nav-grp-label">Laporan</div>
-        <div class="nav-it" id="ni-rekap" onclick="showSec('rekap')">
-          <span class="nav-it-icon">📋</span> Rekap Tunggakan
-        </div>
-        <div class="nav-it" id="ni-riwayat" onclick="showSec('riwayat')">
-          <span class="nav-it-icon">🕐</span> Riwayat Bayar
-        </div>
-        <div class="nav-grp-label">Manajemen</div>
-        <div class="nav-it" id="ni-petugas" onclick="showSec('petugas')">
-          <span class="nav-it-icon">👮</span> Manajemen Petugas
-        </div>
-      </nav>
-
-      <!-- Petugas menu -->
-      <nav id="menu-petugas" style="display:none">
-        <div class="nav-grp-label">Utama</div>
-        <div class="nav-it active" id="ni-dash-pet" onclick="showSec('dash-pet')">
-          <span class="nav-it-icon">📊</span> Dashboard Saya
-        </div>
-        <div class="nav-it" id="ni-input-bayar" onclick="showSec('input-bayar')">
-          <span class="nav-it-icon">💳</span> Input Pembayaran
-        </div>
-        <div class="nav-it" id="ni-riwayat-pet" onclick="showSec('riwayat-pet')">
-          <span class="nav-it-icon">🕐</span> Riwayat Upload
-        </div>
-      </nav>
+      </div>
     </aside>
 
-    <!-- ── Main area ── -->
-    <main class="main-area">
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content">
 
-      <!-- ▸ ADMIN: Dashboard -->
-      <div class="sec active" id="sec-dashboard">
-        <div class="pg-head pg-head-row">
-          <div>
-            <h2>Dashboard Admin</h2>
-            <p>Rekapitulasi pembayaran PBB Desa Kasomalang Kulon</p>
-          </div>
+      <!-- ═══ ADMIN: DASHBOARD ═══ -->
+      <div class="content-section active" id="section-dashboard">
+        <div class="page-head">
+          <h2>Dashboard Admin</h2>
+          <p>Rekapitulasi pembayaran PBB Desa Kasomalang Kulon</p>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card" style="animation-delay:.05s">
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap ki-green">💰</div>
-            </div>
-            <div class="kpi-val kv-green" id="k-lunas">—</div>
-            <div class="kpi-lbl">Sudah Lunas 2026</div>
-            <div class="kpi-trend kt-up">↑ vs tahun lalu</div>
+          <div class="kpi-card kpi-green" style="animation-delay:.1s">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-val" id="kpi-lunas">—</div>
+            <div class="kpi-label">Sudah Lunas 2026</div>
+            <div class="kpi-trend trend-up">↑ 12% dari 2025</div>
           </div>
-          <div class="kpi-card" style="animation-delay:.1s">
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap ki-red">⚠️</div>
-            </div>
-            <div class="kpi-val kv-red" id="k-tunggak">—</div>
-            <div class="kpi-lbl">Belum Lunas 2026</div>
-            <div class="kpi-trend kt-neu">Perlu tindak lanjut</div>
+          <div class="kpi-card kpi-red" style="animation-delay:.2s">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-val" id="kpi-tunggak">—</div>
+            <div class="kpi-label">Belum Lunas 2026</div>
+            <div class="kpi-trend trend-down">Perlu tindak lanjut</div>
           </div>
-          <div class="kpi-card" style="animation-delay:.15s">
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap ki-gold">⏳</div>
-            </div>
-            <div class="kpi-val kv-gold" id="k-pending">—</div>
-            <div class="kpi-lbl">Pending Verifikasi</div>
-            <div class="kpi-trend kt-neu">Menunggu approve</div>
+          <div class="kpi-card kpi-yellow" style="animation-delay:.3s">
+            <div class="kpi-icon">⏳</div>
+            <div class="kpi-val" id="kpi-pending">—</div>
+            <div class="kpi-label">Pending Verifikasi</div>
+            <div class="kpi-trend">Menunggu persetujuan</div>
           </div>
-          <div class="kpi-card" style="animation-delay:.2s">
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap ki-blue">👥</div>
-            </div>
-            <div class="kpi-val kv-blue" id="k-total">—</div>
-            <div class="kpi-lbl">Total Wajib Pajak</div>
-            <div class="kpi-trend kt-neu">7 Dusun</div>
+          <div class="kpi-card kpi-blue" style="animation-delay:.4s">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-val" id="kpi-total-wp">—</div>
+            <div class="kpi-label">Total Wajib Pajak</div>
+            <div class="kpi-trend">7 Dusun</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-          <div class="wcard">
-            <div class="wcard-header"><div><div class="wcard-title">Tren Pelunasan 2020–2026</div></div></div>
-            <div class="chart-wrap"><canvas id="a-chart-tren"></canvas></div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Tren Pelunasan per Tahun</div><div class="card-sub">2020–2026</div></div>
+            </div>
+            <div class="chart-wrap"><canvas id="admin-chart-tren"></canvas></div>
           </div>
-          <div class="wcard">
-            <div class="wcard-header"><div><div class="wcard-title">Status per Dusun (2026)</div></div></div>
-            <div class="chart-wrap"><canvas id="a-chart-dusun"></canvas></div>
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Status 2026 per Dusun</div><div class="card-sub">Lunas vs Tunggakan</div></div>
+            </div>
+            <div class="chart-wrap"><canvas id="admin-chart-dusun"></canvas></div>
           </div>
         </div>
-        <div class="wcard">
-          <div class="wcard-header">
-            <div><div class="wcard-title">Pending Approval Terbaru</div><div class="wcard-sub">Bukti bayar yang menunggu verifikasi</div></div>
-            <button class="btn btn-forest btn-sm" onclick="showSec('approval')">Lihat Semua</button>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">⏰ Pending Approval Terbaru</div></div>
+            <button class="btn btn-primary btn-sm" onclick="showSection('approval')">Lihat Semua</button>
           </div>
-          <div id="pending-preview"></div>
+          <div id="admin-pending-preview"></div>
         </div>
       </div>
 
-      <!-- ▸ ADMIN: Data WP -->
-      <div class="sec" id="sec-data-wp">
-        <div class="pg-head pg-head-row">
-          <div><h2>Data Wajib Pajak</h2><p>Kelola dan pantau data semua wajib pajak</p></div>
-          <button class="btn btn-forest" onclick="openModal('m-tambah-wp')">+ Tambah WP</button>
+      <!-- ═══ ADMIN: DATA WAJIB PAJAK ═══ -->
+      <div class="content-section" id="section-data-wp">
+        <div class="card-head">
+          <div class="page-head" style="margin:0">
+            <h2>Data Wajib Pajak</h2>
+            <p>Kelola data dan riwayat pembayaran per NOP</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalTambahWP()">+ Tambah WP</button>
         </div>
-        <div class="wcard">
+        <div class="card">
           <div class="filter-row">
-            <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Cari nama / NOP / RT / RW…" id="a-q-wp" oninput="adminFilterWP()"></div>
-            <select class="fselect" id="a-f-dusun" onchange="adminFilterWP()" style="min-width:150px">
-              <option value="">Semua Dusun</option>
-              <option>Dusun Kidul</option><option>Dusun Kulon</option><option>Dusun Wetan</option>
-              <option>Dusun Kaler</option><option>Dusun Tengah</option><option>Dusun Girang</option><option>Dusun Hilir</option>
+            <div class="search-wrap">
+              <span class="icon">🔍</span>
+              <input type="text" placeholder="Cari nama / NOP / RT / RW…" id="admin-search-wp" oninput="filterWP()">
+            </div>
+            <select class="sel-filter" id="filter-rw" onchange="filterWP()">
+              <option value="">Semua RW</option>
             </select>
-            <select class="fselect" id="a-f-status" onchange="adminFilterWP()" style="min-width:140px">
+            <select class="sel-filter" id="filter-status-wp" onchange="filterWP()">
               <option value="">Semua Status</option>
               <option value="lunas">Lunas</option>
               <option value="pending">Pending</option>
               <option value="tunggakan">Tunggakan</option>
             </select>
           </div>
-          <div class="tbl-wrap">
+          <div class="table-wrap">
             <table>
-              <thead><tr><th>NOP</th><th>Nama WP</th><th>Dusun</th><th>RW</th><th>RT</th><th>Status 2026</th><th>Tunggakan</th><th>Aksi</th></tr></thead>
-              <tbody id="wp-tbody"></tbody>
+              <thead><tr><th>NOP</th><th>Nama WP</th><th>RW</th><th>RT</th><th>Status 2026</th><th>Tunggakan</th><th>Total Tagihan</th><th>Aksi</th></tr></thead>
+              <tbody id="admin-wp-tbody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ▸ ADMIN: Approval -->
-      <div class="sec" id="sec-approval">
-        <div class="pg-head"><h2>Approval Pembayaran</h2><p>Verifikasi bukti bayar yang diupload petugas</p></div>
-        <div class="wcard">
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Tgl Upload</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
-              <tbody id="approval-tbody"></tbody>
-            </table>
-          </div>
+      <!-- ═══ ADMIN: APPROVAL ═══ -->
+      <div class="content-section" id="section-approval">
+        <div class="page-head">
+          <h2>Approval Pembayaran</h2>
+          <p>Verifikasi bukti pembayaran yang diupload petugas</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="approval-tbody"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- ▸ ADMIN: Rekap -->
-      <div class="sec" id="sec-rekap">
-        <div class="pg-head"><h2>Rekap Tunggakan</h2><p>Daftar wajib pajak dengan tunggakan 2020–2026</p></div>
-        <div class="kpi-grid" style="margin-bottom:20px">
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-red" style="margin-bottom:8px">📅</div><div class="kpi-val kv-red" id="r-total">—</div><div class="kpi-lbl">Total dengan Tunggakan</div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-gold" style="margin-bottom:8px">📅</div><div class="kpi-val kv-gold" id="r-satu">—</div><div class="kpi-lbl">Tunggak 1 Tahun</div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-red" style="margin-bottom:8px">📅</div><div class="kpi-val kv-red" id="r-multi">—</div><div class="kpi-lbl">Tunggak &gt;1 Tahun</div></div>
+      <!-- ═══ ADMIN: REKAP TUNGGAKAN ═══ -->
+      <div class="content-section" id="section-rekap">
+        <div class="page-head">
+          <h2>Rekap Tunggakan</h2>
+          <p>Wajib pajak yang masih memiliki tunggakan 2020–2026</p>
         </div>
-        <div class="wcard">
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>NOP</th><th>Nama WP</th><th>Dusun / RW / RT</th><th>Tahun Tunggak</th><th>Jumlah</th><th>Aksi</th></tr></thead>
-              <tbody id="rekap-tbody"></tbody>
-            </table>
-          </div>
+        <div class="kpi-grid" style="margin-bottom:24px">
+          <div class="kpi-card kpi-red"><div class="kpi-icon">📊</div><div class="kpi-val" id="rek-total">—</div><div class="kpi-label">Total Tunggakan</div></div>
+          <div class="kpi-card kpi-yellow"><div class="kpi-icon">📅</div><div class="kpi-val" id="rek-1th">—</div><div class="kpi-label">Tunggak 1 Tahun</div></div>
+          <div class="kpi-card kpi-red"><div class="kpi-icon">📅</div><div class="kpi-val" id="rek-multi">—</div><div class="kpi-label">Tunggak >1 Tahun</div></div>
         </div>
-      </div>
-
-      <!-- ▸ ADMIN: Riwayat -->
-      <div class="sec" id="sec-riwayat">
-        <div class="pg-head"><h2>Riwayat Pembayaran</h2><p>Semua transaksi yang sudah diverifikasi</p></div>
-        <div class="wcard">
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Tgl Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove</th></tr></thead>
-              <tbody id="riwayat-tbody"></tbody>
-            </table>
-          </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NOP</th><th>Nama WP</th><th>RW / RT</th><th>Tahun Tunggak</th><th>Jumlah</th><th>Total Tagihan</th><th>Aksi</th></tr></thead>
+            <tbody id="rekap-tbody"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- ▸ ADMIN: Petugas -->
-      <div class="sec" id="sec-petugas">
-        <div class="pg-head pg-head-row">
-          <div><h2>Manajemen Petugas</h2><p>Kelola akun petugas RT dan Kolektor</p></div>
-          <button class="btn btn-forest" onclick="openModal('m-tambah-pet')">+ Tambah Petugas</button>
+      <!-- ═══ ADMIN: RIWAYAT ═══ -->
+      <div class="content-section" id="section-riwayat">
+        <div class="page-head">
+          <h2>Riwayat Pembayaran</h2>
+          <p>Semua transaksi yang telah diverifikasi</p>
         </div>
-        <div class="wcard">
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Wilayah</th><th>Upload</th><th>Aksi</th></tr></thead>
-              <tbody id="petugas-tbody"></tbody>
-            </table>
-          </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tgl Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove Oleh</th></tr></thead>
+            <tbody id="riwayat-tbody"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- ▸ PETUGAS: Dashboard -->
-      <div class="sec" id="sec-dash-pet">
-        <div class="pg-head">
+      <!-- ═══ ADMIN: MANAJEMEN PETUGAS ═══ -->
+      <div class="content-section" id="section-petugas">
+        <div class="card-head">
+          <div class="page-head" style="margin:0">
+            <h2>Manajemen Petugas</h2>
+            <p>Kelola akun Petugas RT dan Kolektor</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModalTambahPetugas()">+ Tambah Petugas</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Wilayah</th><th>Total Upload</th><th>Aksi</th></tr></thead>
+            <tbody id="petugas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ PETUGAS: DASHBOARD ═══ -->
+      <div class="content-section" id="section-dashboard-petugas">
+        <div class="page-head">
           <h2>Dashboard Saya</h2>
-          <p id="pet-greeting">Selamat datang</p>
+          <p id="petugas-greeting">Selamat datang</p>
         </div>
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-green" style="margin-bottom:8px">✅</div><div class="kpi-val kv-green" id="p-lunas">—</div><div class="kpi-lbl">Lunas (Wilayah)</div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-red" style="margin-bottom:8px">⚠️</div><div class="kpi-val kv-red" id="p-belum">—</div><div class="kpi-lbl">Belum Lunas</div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-gold" style="margin-bottom:8px">⏳</div><div class="kpi-val kv-gold" id="p-pending">—</div><div class="kpi-lbl">Pending Approve</div></div>
-          <div class="kpi-card"><div class="kpi-icon-wrap ki-blue" style="margin-bottom:8px">📋</div><div class="kpi-val kv-blue" id="p-total">—</div><div class="kpi-lbl">Total WP Wilayah</div></div>
+          <div class="kpi-card kpi-green"><div class="kpi-icon">✅</div><div class="kpi-val" id="pet-lunas">—</div><div class="kpi-label">Sudah Lunas (Wilayah Saya)</div></div>
+          <div class="kpi-card kpi-red"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="pet-belum">—</div><div class="kpi-label">Belum Lunas</div></div>
+          <div class="kpi-card kpi-yellow"><div class="kpi-icon">⏳</div><div class="kpi-val" id="pet-pending">—</div><div class="kpi-label">Pending Approve</div></div>
+          <div class="kpi-card kpi-blue"><div class="kpi-icon">📋</div><div class="kpi-val" id="pet-total">—</div><div class="kpi-label">Total WP Wilayah</div></div>
         </div>
-        <div class="wcard">
-          <div class="wcard-header"><div class="wcard-title">WP Belum Lunas – 2026</div></div>
-          <div class="tbl-wrap">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">WP Belum Lunas – Wilayah Saya (2026)</div>
+          </div>
+          <div class="table-wrap">
             <table>
               <thead><tr><th>NOP</th><th>Nama WP</th><th>Status</th><th>Aksi</th></tr></thead>
-              <tbody id="pet-tbody"></tbody>
+              <tbody id="petugas-wp-tbody"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ▸ PETUGAS: Input Bayar -->
-      <div class="sec" id="sec-input-bayar">
-        <div class="pg-head"><h2>Input Pembayaran</h2><p>Upload bukti bayar wajib pajak untuk diverifikasi admin</p></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-          <div class="wcard">
-            <div class="wcard-title" style="margin-bottom:18px">Form Upload Bukti</div>
-            <div class="fgroup">
-              <label class="flabel">Cari Wajib Pajak</label>
-              <input class="finput" type="text" id="b-search" placeholder="Ketik nama atau NOP…" oninput="searchBayarWP()">
-              <div id="b-drop"></div>
+      <!-- ═══ PETUGAS: INPUT BAYAR ═══ -->
+      <div class="content-section" id="section-bayar-wp">
+        <div class="page-head">
+          <h2>Input Pembayaran</h2>
+          <p>Upload bukti bayar wajib pajak ke sistem desa</p>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Form Upload Bukti Bayar</div>
+            <div class="form-group">
+              <label class="form-label">Cari Wajib Pajak (Nama / NOP)</label>
+              <input class="form-input" type="text" id="bayar-search" placeholder="Ketik nama atau NOP…" oninput="searchBayarWP()">
             </div>
-            <div class="fgroup">
-              <label class="flabel">Tahun Pembayaran</label>
-              <select class="finput fselect-field" id="b-tahun">
-                <option>2026</option><option>2025</option><option>2024</option>
-                <option>2023</option><option>2022</option><option>2021</option><option>2020</option>
-              </select>
+            <div id="bayar-wp-result" style="margin-bottom:12px"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Tahun Pembayaran</label>
+                <select class="form-input form-select" id="bayar-tahun">
+                  <option>2026</option><option>2025</option><option>2024</option>
+                  <option>2023</option><option>2022</option><option>2021</option><option>2020</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Keterangan</label>
+                <input class="form-input" type="text" id="bayar-ket" placeholder="(opsional)">
+              </div>
             </div>
-            <div class="fgroup">
-              <label class="flabel">Keterangan (opsional)</label>
-              <input class="finput" type="text" id="b-ket" placeholder="Catatan pembayaran…">
-            </div>
-            <div class="fgroup">
-              <label class="flabel">Bukti Pembayaran</label>
-              <div class="upload-zone" onclick="document.getElementById('b-file').click()" id="b-zone">
-                <input type="file" id="b-file" accept="image/*" onchange="previewFile(this)">
-                <div class="up-icon">📎</div>
-                <p>Klik atau drag foto kuitansi<br><small>JPG, PNG – maks 5 MB</small></p>
-                <img id="b-preview" class="up-preview">
+            <div class="form-group">
+              <label class="form-label">Bukti Pembayaran</label>
+              <div class="upload-zone" onclick="document.getElementById('file-bukti').click()" id="upload-area">
+                <input type="file" id="file-bukti" accept="image/*" onchange="previewBukti(this)">
+                <div class="upload-icon">📎</div>
+                <div class="upload-text">Klik atau seret foto bukti bayar<br><small>JPG, PNG, maks 5 MB</small></div>
+                <img id="bukti-preview" class="preview-img" alt="Preview bukti">
               </div>
             </div>
             <button class="btn btn-success btn-lg btn-block" onclick="submitBayar()">⬆️ Upload Bukti Bayar</button>
           </div>
-          <div class="wcard">
-            <div class="wcard-title" style="margin-bottom:18px">Informasi WP Dipilih</div>
-            <div id="b-info">
-              <div class="empty"><div class="eico">👆</div><p>Cari dan pilih wajib pajak terlebih dahulu</p></div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Info WP yang Dipilih</div>
+            <div id="bayar-info-detail">
+              <div class="empty"><div class="empty-icon">👆</div><p>Cari dan pilih wajib pajak terlebih dahulu</p></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ▸ PETUGAS: Riwayat Upload -->
-      <div class="sec" id="sec-riwayat-pet">
-        <div class="pg-head"><h2>Riwayat Upload Saya</h2><p>Semua bukti bayar yang pernah Anda kirim</p></div>
-        <div class="wcard">
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Status</th><th>Ket. Admin</th></tr></thead>
-              <tbody id="riwayat-pet-tbody"></tbody>
-            </table>
+      <!-- ═══ PETUGAS: RIWAYAT UPLOAD ═══ -->
+      <div class="content-section" id="section-riwayat-petugas">
+        <div class="page-head">
+          <h2>Riwayat Upload Saya</h2>
+          <p>Semua bukti bayar yang pernah Anda upload</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Status</th><th>Keterangan Admin</th></tr></thead>
+            <tbody id="riwayat-petugas-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ═══ ADMIN: IMPORT DATA ═══ -->
+      <div class="content-section" id="section-import-data">
+        <div class="page-head">
+          <h2>Import Data Excel</h2>
+          <p>Upload file Excel untuk memperbarui database wajib pajak</p>
+        </div>
+
+        <!-- Status DB saat ini -->
+        <div id="import-db-status"></div>
+
+        <div class="two-col" style="margin-top:20px">
+
+          <!-- Upload Belum Bayar -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">📋 Data Belum Bayar 2020–2025</div>
+                <div class="card-sub">Format: NAMA | RT | RW | NOP | WP (per sheet tahun)</div>
+              </div>
+            </div>
+            <div class="upload-zone" onclick="document.getElementById('file-belum-bayar').click()" style="margin-bottom:16px">
+              <input type="file" id="file-belum-bayar" accept=".xlsx,.xls" onchange="handleImportBelumBayar(this)">
+              <div class="upload-icon">📊</div>
+              <div class="upload-text">Klik untuk pilih file<br><small>DATA_BELUM_BAYAR_PBB_2020-2025.xlsx</small></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="btn-import-bb" onclick="document.getElementById('file-belum-bayar').click()">
+              📂 Pilih File Excel
+            </button>
+            <div style="margin-top:16px;padding:12px;background:var(--c-brand-pale);border-radius:var(--r-md);font-size:.78rem;color:var(--c-brand-dark);line-height:1.7">
+              <strong>Format yang didukung:</strong><br>
+              ✓ Sheet per tahun: 2020, 2021, 2022, 2023, 2024, 2025<br>
+              ✓ Kolom: NAMA, RT, RW, NOP (atau NO. SPPT), WP (atau WB)<br>
+              ✓ Data otomatis di-merge berdasarkan NOP
+            </div>
+          </div>
+
+          <!-- Upload SPPT 2026 -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">📄 SPPT PBB 2026</div>
+                <div class="card-sub">Format: NOP | NAMA | RT | RW | WP/Tagihan</div>
+              </div>
+            </div>
+
+            <!-- Warning encrypted -->
+            <div id="sppt-enc-warn" class="alert alert-warn" style="display:none;margin-bottom:16px">
+              <div class="alert-icon">🔒</div>
+              <div>
+                <h4>File Terproteksi Password</h4>
+                <p>Hapus password Excel dulu: <strong>Review → Unprotect Sheet</strong> → simpan ulang → upload lagi.</p>
+              </div>
+            </div>
+
+            <div class="upload-zone" onclick="document.getElementById('file-sppt').click()" style="margin-bottom:16px">
+              <input type="file" id="file-sppt" accept=".xlsx,.xls" onchange="handleImportSppt(this)">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">Klik untuk pilih file<br><small>SPPT_PBB_2026.xlsx</small></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="btn-import-sppt" onclick="document.getElementById('file-sppt').click()">
+              📂 Pilih File SPPT
+            </button>
+
+            <div class="alert alert-warn" style="margin-top:16px">
+              <div class="alert-icon">⚠️</div>
+              <div>
+                <h4>File SPPT Anda Terenkripsi</h4>
+                <p>SPPT_PBB_2026.xlsx terdeteksi berpassword. Ikuti langkah ini di Excel:</p>
+                <ol style="margin-top:6px;padding-left:16px;font-size:.78rem;line-height:1.8">
+                  <li>Buka file di Microsoft Excel</li>
+                  <li>Klik <strong>File → Info → Protect Workbook → Encrypt with Password</strong></li>
+                  <li>Hapus password (kosongkan) → OK</li>
+                  <li>Simpan ulang (Ctrl+S)</li>
+                  <li>Upload file yang sudah tidak berpassword</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panduan format -->
+        <div class="card" style="margin-top:4px">
+          <div class="card-title" style="margin-bottom:14px">📖 Panduan Format Excel</div>
+          <div class="two-col">
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--c-muted)">FILE BELUM BAYAR — Contoh Sheet "2025"</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>NAMA</th><th>RT</th><th>RW</th><th>NOP</th><th>WP</th></tr></thead>
+                  <tbody>
+                    <tr><td>IIS TITIN</td><td>02</td><td>04</td><td>32.15.031.003.001.0010.0</td><td>28000</td></tr>
+                    <tr><td>AGUS</td><td>02</td><td>07</td><td>32.15.031.003.001.0015.0</td><td>57000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--c-muted)">FILE SPPT 2026 — Sheet pertama</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>NAMA</th><th>RT</th><th>RW</th><th>NOP</th><th>WP</th></tr></thead>
+                  <tbody>
+                    <tr><td>SUHEDI</td><td>01</td><td>05</td><td>32.15.031.003.001.0031.0</td><td>40000</td></tr>
+                    <tr><td>ATMAJA</td><td>02</td><td>05</td><td>32.15.031.003.001.0038.0</td><td>13000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-    </main>
-  </div>
-</div>
+    </main><!-- /main-content -->
+  </div><!-- /app-layout -->
+</div><!-- /page-app -->
 
-<!-- ═══════════════════════════════════════════
-     MODALS
-═══════════════════════════════════════════ -->
+
+<!-- ╔═══════════════════════════════════════╗ -->
+<!-- ║  MODALS                               ║ -->
+<!-- ╚═══════════════════════════════════════╝ -->
 
 <!-- Detail WP -->
-<div class="modal-overlay" id="m-detail-wp">
+<div class="modal-overlay" id="modal-detail-wp">
   <div class="modal">
-    <div class="modal-head"><h3>Detail Wajib Pajak</h3><button class="modal-close" onclick="closeModal('m-detail-wp')">✕</button></div>
-    <div id="m-detail-wp-body"></div>
+    <div class="modal-head">
+      <h3>Detail Wajib Pajak</h3>
+      <button class="modal-close" onclick="closeModal('modal-detail-wp')">✕</button>
+    </div>
+    <div id="modal-wp-content"></div>
   </div>
 </div>
 
 <!-- Tambah WP -->
-<div class="modal-overlay" id="m-tambah-wp">
+<div class="modal-overlay" id="modal-tambah-wp">
   <div class="modal">
-    <div class="modal-head"><h3>Tambah Wajib Pajak</h3><button class="modal-close" onclick="closeModal('m-tambah-wp')">✕</button></div>
-    <div class="fgroup"><label class="flabel">NOP</label><input class="finput" id="tw-nop" placeholder="32.xx.xxx.xxx.xxx-xxxx.x"></div>
-    <div class="fgroup"><label class="flabel">Nama Wajib Pajak</label><input class="finput" id="tw-nama"></div>
-    <div class="fgroup"><label class="flabel">Dusun</label>
-      <select class="finput fselect-field" id="tw-dusun">
+    <div class="modal-head">
+      <h3>Tambah Wajib Pajak</h3>
+      <button class="modal-close" onclick="closeModal('modal-tambah-wp')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">NOP</label><input class="form-input" id="twp-nop" placeholder="32.xx.xxx.xxx.xxx-xxxx.x"></div>
+    <div class="form-group"><label class="form-label">Nama Wajib Pajak</label><input class="form-input" id="twp-nama"></div>
+    <div class="form-group">
+      <label class="form-label">Dusun</label>
+      <select class="form-input form-select" id="twp-dusun">
         <option>Dusun Kidul</option><option>Dusun Kulon</option><option>Dusun Wetan</option>
         <option>Dusun Kaler</option><option>Dusun Tengah</option><option>Dusun Girang</option><option>Dusun Hilir</option>
       </select>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="fgroup"><label class="flabel">RW</label><input class="finput" id="tw-rw" placeholder="001"></div>
-      <div class="fgroup"><label class="flabel">RT</label><input class="finput" id="tw-rt" placeholder="001"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">RW</label><input class="form-input" id="twp-rw" placeholder="001"></div>
+      <div class="form-group"><label class="form-label">RT</label><input class="form-input" id="twp-rt" placeholder="001"></div>
     </div>
-    <button class="btn btn-forest btn-lg btn-block" onclick="simpanWP()">Simpan WP</button>
+    <button class="btn btn-primary btn-lg btn-block" onclick="simpanWP()">Simpan</button>
   </div>
 </div>
 
 <!-- Tambah Petugas -->
-<div class="modal-overlay" id="m-tambah-pet">
+<div class="modal-overlay" id="modal-tambah-petugas">
   <div class="modal">
-    <div class="modal-head"><h3>Tambah Petugas</h3><button class="modal-close" onclick="closeModal('m-tambah-pet')">✕</button></div>
-    <div class="fgroup"><label class="flabel">Nama Lengkap</label><input class="finput" id="tp-nama"></div>
-    <div class="fgroup"><label class="flabel">Username</label><input class="finput" id="tp-user"></div>
-    <div class="fgroup"><label class="flabel">Password</label><input class="finput" type="password" id="tp-pass"></div>
-    <div class="fgroup"><label class="flabel">Role</label>
-      <select class="finput fselect-field" id="tp-role"><option value="rt">Petugas RT</option><option value="kolektor">Kolektor</option></select>
+    <div class="modal-head">
+      <h3>Tambah Petugas</h3>
+      <button class="modal-close" onclick="closeModal('modal-tambah-petugas')">✕</button>
     </div>
-    <div class="fgroup"><label class="flabel">Wilayah</label><input class="finput" id="tp-wilayah" placeholder="cth: Dusun Kidul / RW 001 / RT 003"></div>
-    <button class="btn btn-forest btn-lg btn-block" onclick="simpanPetugas()">Simpan Petugas</button>
+    <div class="form-group"><label class="form-label">Nama Lengkap</label><input class="form-input" id="tp-nama"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="tp-user"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="tp-pass"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select class="form-input form-select" id="tp-role"><option value="rt">Petugas RT</option><option value="kolektor">Kolektor</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Wilayah (Dusun / RW / RT)</label><input class="form-input" id="tp-wilayah" placeholder="cth: Dusun Kidul / RW 001 / RT 003"></div>
+    <button class="btn btn-primary btn-lg btn-block" onclick="simpanPetugas()">Simpan</button>
   </div>
 </div>
 
-<!-- View Bukti -->
-<div class="modal-overlay" id="m-bukti">
+<!-- Bukti Pembayaran -->
+<div class="modal-overlay" id="modal-bukti">
   <div class="modal">
-    <div class="modal-head"><h3>Bukti Pembayaran</h3><button class="modal-close" onclick="closeModal('m-bukti')">✕</button></div>
-    <div id="m-bukti-body"></div>
+    <div class="modal-head">
+      <h3>Bukti Pembayaran</h3>
+      <button class="modal-close" onclick="closeModal('modal-bukti')">✕</button>
+    </div>
+    <div id="modal-bukti-content"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCRIPTS – load from external file
-═══════════════════════════════════════════ -->
-<script src="app.js"></script>
+<!-- ░░ KPI init (total WP shown in admin dashboard) ░░ -->
+<script>
+  // Minor inline: set admin KPI total WP once data.js loads
+  window._initKpiTotal = true;
+</script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
+<!-- PATCH: injected additions. Real index.html is self-contained below -->
