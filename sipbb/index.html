@@ -7,6 +7,7 @@
 <meta name="description" content="Sistem Informasi Pajak Bumi dan Bangunan Desa Kasomalang Kulon, Subang">
 <link rel="stylesheet" href="css/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -31,9 +32,10 @@
     </div>
   </a>
   <div class="nb-actions">
-    <button class="btn btn-ghost" onclick="showPage('public')" id="btn-nav-public">🏠 Dashboard</button>
+    <button class="btn btn-ghost"    onclick="showPage('public')"  id="btn-nav-public">🏠 Dashboard</button>
     <button class="btn btn-outline btn-sm" onclick="showPage('login')" id="btn-nav-login">Masuk</button>
-    <button class="btn btn-danger  btn-sm" onclick="handleLogout()" id="btn-nav-logout" style="display:none">Keluar</button>
+    <button class="btn btn-danger  btn-sm" onclick="handleLogout()"    id="btn-nav-logout" style="display:none">Keluar</button>
+    <!-- Mobile hamburger -->
     <button class="btn btn-ghost btn-sm" id="hamburger" style="display:none">☰</button>
   </div>
 </nav>
@@ -47,72 +49,41 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-inner">
-      <div class="hero-eyebrow">📊 Transparansi PBB – Desa Kasomalang Kulon</div>
-      <div class="hero-h1">Sistem Informasi Pajak Bumi & Bangunan<br><em>Desa Kasomalang Kulon</em></div>
+      <div class="hero-pill">📊 Transparansi PBB – Desa Kasomalang Kulon</div>
+      <h1 class="hero-h1">Sistem Informasi<br><em>Pajak Bumi & Bangunan</em></h1>
+      <p class="hero-lead">Pantau status pembayaran PBB tahun 2020–2026 secara transparan dan real-time untuk seluruh warga Desa Kasomalang Kulon.</p>
       <div class="hero-stats">
-        <div class="hstat">
-          <div class="hstat-lbl">Total Wajib Pajak</div>
-          <div class="hstat-val" id="pub-total-wp">—</div>
-          <div class="hstat-sub">Terdaftar 2020–2026</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-lbl">Sudah Lunas 2026</div>
-          <div class="hstat-val" id="pub-lunas">—</div>
-          <div class="hstat-sub">Tahun berjalan</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-lbl">Belum Lunas 2026</div>
-          <div class="hstat-val gold" id="pub-tunggakan">—</div>
-          <div class="hstat-sub">Perlu tindak lanjut</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-lbl">Menunggu Verifikasi</div>
-          <div class="hstat-val" id="pub-pending">—</div>
-          <div class="hstat-sub">Pending approval</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-lbl">Tingkat Pelunasan</div>
-          <div class="hstat-val" id="pub-persen">—</div>
-          <div class="hstat-sub">Tahun 2026</div>
-        </div>
+        <div class="hstat" style="animation-delay:.1s"><div class="hstat-val" id="pub-total-wp">—</div><div class="hstat-lbl">Total Wajib Pajak</div></div>
+        <div class="hstat" style="animation-delay:.2s"><div class="hstat-val" id="pub-lunas">—</div><div class="hstat-lbl">Sudah Lunas 2026</div></div>
+        <div class="hstat" style="animation-delay:.3s"><div class="hstat-val" id="pub-tunggakan">—</div><div class="hstat-lbl">Belum Lunas 2026</div></div>
+        <div class="hstat" style="animation-delay:.4s"><div class="hstat-val" id="pub-pending">—</div><div class="hstat-lbl">Menunggu Verifikasi</div></div>
+        <div class="hstat" style="animation-delay:.5s"><div class="hstat-val" id="pub-persen">—</div><div class="hstat-lbl">Tingkat Pelunasan</div></div>
       </div>
     </div>
   </section>
 
-  <!-- DUSUN TABS -->
-  <div class="dusun-strip" id="dusun-strip">
-    <div class="dusun-inner" id="dusun-inner">
-      <!-- rendered by JS -->
-    </div>
-  </div>
-
   <!-- PUBLIC CONTENT -->
   <div class="pub-content">
 
-    <!-- Analytics RW Cards -->
-    <div class="analytics" id="analytics-section">
-      <div class="analytics-title">📊 Analitik Wajib Pajak per RW & RT</div>
-      <div class="rw-grid" id="rw-grid-pub"></div>
-    </div>
-
-    <!-- Year Tabs + Charts -->
+    <!-- Year tabs -->
     <div class="section-head">
-      <h2>📈 Tren Pembayaran PBB</h2>
-      <p>Statistik pelunasan per tahun, per RW, dan per RT</p>
+      <h2>📊 Analitik Pembayaran PBB</h2>
+      <p>Rekapitulasi per tahun, per dusun, per RW dan RT</p>
     </div>
     <div class="year-tabs" id="pub-year-tabs"></div>
 
-    <div class="two-col" style="margin-bottom:20px">
+    <!-- Charts -->
+    <div class="chart-grid">
       <div class="chart-card">
         <div class="chart-card-head"><h3>Tren Pelunasan 2020–2026</h3><p>Persentase lunas per tahun ajaran</p></div>
         <div class="chart-wrap"><canvas id="chart-tren"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-head"><h3>Status Tahun 2026</h3><p>Distribusi status pembayaran saat ini</p></div>
+        <div class="chart-card-head"><h3>Status Tahun Ini (2026)</h3><p>Distribusi status pembayaran saat ini</p></div>
         <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-head"><h3>Rekapitulasi Per Dusun</h3><p>Jumlah lunas vs tunggakan per dusun</p></div>
+        <div class="chart-card-head"><h3>Rekapitulasi Per RW</h3><p>Jumlah lunas vs tunggakan per RW</p></div>
         <div class="chart-wrap"><canvas id="chart-rw"></canvas></div>
       </div>
       <div class="chart-card">
@@ -121,16 +92,19 @@
       </div>
     </div>
 
-    <!-- Status Dusun Grid -->
+    <!-- Dusun -->
     <div class="section-head">
       <h2>🏘️ Status Per Dusun</h2>
       <p>Ringkasan pembayaran berdasarkan wilayah</p>
     </div>
-    <div class="dusun-grid" id="dusun-grid-pub"></div>
+    <div class="dusun-grid" id="rw-cards"></div>
 
     <!-- Cek Status WP -->
-    <div class="panel-cari">
-      <h2>🔍 Cek Status Wajib Pajak</h2>
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <h3>🔍 Cek Status Wajib Pajak</h3>
+        <p>Masukkan NOP atau nama untuk melihat riwayat pembayaran</p>
+      </div>
       <div class="filter-row">
         <div class="search-wrap" style="flex:2">
           <span class="icon">🔍</span>
@@ -143,22 +117,10 @@
           <option value="tunggakan">Tunggakan</option>
         </select>
       </div>
-    </div>
-
-    <div class="panel-tabel">
-      <div class="th-bar">
-        <span class="th-bar-left">Daftar Wajib Pajak</span>
-      </div>
-      <div class="tbl-wrap">
+      <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th style="width:auto;text-align:left">NOP</th>
-              <th>Nama WP</th>
-              <th>Dusun / RW / RT</th>
-              <th>2024</th><th>2025</th><th>2026</th>
-              <th>Tunggakan</th>
-            </tr>
+            <tr><th>NOP</th><th>Nama WP</th><th>RW / RT</th><th>2024</th><th>2025</th><th>2026</th><th>Tunggakan</th><th>Total Tagihan</th></tr>
           </thead>
           <tbody id="pub-table-body"></tbody>
         </table>
@@ -177,6 +139,7 @@
     <div class="login-logo">🏛️</div>
     <h2>Masuk ke SIPBB</h2>
     <p class="subtitle">Desa Kasomalang Kulon</p>
+
     <div class="form-group">
       <label class="form-label">Role / Jabatan</label>
       <select class="form-input form-select" id="login-role">
@@ -194,7 +157,8 @@
       <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="btn btn-primary btn-lg btn-block" onclick="doLogin()" style="margin-top:8px">Masuk</button>
-    <button class="btn btn-ghost btn-block" onclick="showPage('public')" style="margin-top:6px;font-size:.8rem;color:var(--ab)">← Kembali ke Dashboard Publik</button>
+    <button class="btn btn-ghost btn-block" onclick="showPage('public')" style="margin-top:6px;font-size:.8rem">← Kembali ke Dashboard Publik</button>
+
     <div class="login-demo">
       <p>Demo Login Cepat</p>
       <div class="demo-btns">
@@ -225,7 +189,7 @@
       <!-- ADMIN MENU -->
       <div id="menu-admin" style="display:none">
         <div class="nav-group-label">Utama</div>
-        <div class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+        <div class="nav-item active" id="nav-dashboard"  onclick="showSection('dashboard')">
           <span class="icon">📊</span> Dashboard
         </div>
         <div class="nav-item" id="nav-data-wp" onclick="showSection('data-wp')">
@@ -236,7 +200,7 @@
           <span class="nav-badge" id="badge-approval" style="display:none">0</span>
         </div>
         <div class="nav-group-label">Laporan</div>
-        <div class="nav-item" id="nav-rekap" onclick="showSection('rekap')">
+        <div class="nav-item" id="nav-rekap"   onclick="showSection('rekap')">
           <span class="icon">📋</span> Rekap Tunggakan
         </div>
         <div class="nav-item" id="nav-riwayat" onclick="showSection('riwayat')">
@@ -245,6 +209,9 @@
         <div class="nav-group-label">Manajemen</div>
         <div class="nav-item" id="nav-petugas" onclick="showSection('petugas')">
           <span class="icon">👮</span> Manajemen Petugas
+        </div>
+        <div class="nav-item" id="nav-import" onclick="showSection('import-data')">
+          <span class="icon">📥</span> Import Data Excel
         </div>
       </div>
 
@@ -268,14 +235,10 @@
 
       <!-- ═══ ADMIN: DASHBOARD ═══ -->
       <div class="content-section active" id="section-dashboard">
-        <div class="admin-section-head">
-          <div>
-            <h2>Dashboard Admin</h2>
-            <p>Rekapitulasi pembayaran PBB Desa Kasomalang Kulon</p>
-          </div>
-          <button class="btn btn-outline btn-sm" onclick="showPage('public')">🌐 Lihat Publik</button>
+        <div class="page-head">
+          <h2>Dashboard Admin</h2>
+          <p>Rekapitulasi pembayaran PBB Desa Kasomalang Kulon</p>
         </div>
-
         <div class="kpi-grid">
           <div class="kpi-card kpi-green" style="animation-delay:.1s">
             <div class="kpi-icon">💰</div>
@@ -301,12 +264,6 @@
             <div class="kpi-label">Total Wajib Pajak</div>
             <div class="kpi-trend">7 Dusun</div>
           </div>
-        </div>
-
-        <!-- Analytics RW Cards (admin version) -->
-        <div class="analytics" id="admin-analytics-section">
-          <div class="analytics-title">📊 Analitik per Dusun & RT (2026)</div>
-          <div class="rw-grid" id="rw-grid-admin"></div>
         </div>
 
         <div class="two-col">
@@ -335,12 +292,12 @@
 
       <!-- ═══ ADMIN: DATA WAJIB PAJAK ═══ -->
       <div class="content-section" id="section-data-wp">
-        <div class="admin-section-head">
-          <div>
+        <div class="card-head">
+          <div class="page-head" style="margin:0">
             <h2>Data Wajib Pajak</h2>
             <p>Kelola data dan riwayat pembayaran per NOP</p>
           </div>
-          <button class="btn btn-outline" onclick="openModalTambahWP()">+ Tambah WP</button>
+          <button class="btn btn-primary" onclick="openModalTambahWP()">+ Tambah WP</button>
         </div>
         <div class="card">
           <div class="filter-row">
@@ -348,10 +305,8 @@
               <span class="icon">🔍</span>
               <input type="text" placeholder="Cari nama / NOP / RT / RW…" id="admin-search-wp" oninput="filterWP()">
             </div>
-            <select class="sel-filter" id="filter-dusun" onchange="filterWP()">
-              <option value="">Semua Dusun</option>
-              <option>Dusun Kidul</option><option>Dusun Kulon</option><option>Dusun Wetan</option>
-              <option>Dusun Kaler</option><option>Dusun Tengah</option><option>Dusun Girang</option><option>Dusun Hilir</option>
+            <select class="sel-filter" id="filter-rw" onchange="filterWP()">
+              <option value="">Semua RW</option>
             </select>
             <select class="sel-filter" id="filter-status-wp" onchange="filterWP()">
               <option value="">Semua Status</option>
@@ -362,7 +317,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th style="width:auto;text-align:left">NOP</th><th>Nama WP</th><th>Dusun</th><th>RW</th><th>RT</th><th>Status 2026</th><th>Tunggakan</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>NOP</th><th>Nama WP</th><th>RW</th><th>RT</th><th>Status 2026</th><th>Tunggakan</th><th>Total Tagihan</th><th>Aksi</th></tr></thead>
               <tbody id="admin-wp-tbody"></tbody>
             </table>
           </div>
@@ -371,15 +326,13 @@
 
       <!-- ═══ ADMIN: APPROVAL ═══ -->
       <div class="content-section" id="section-approval">
-        <div class="admin-section-head">
-          <div>
-            <h2>Approval Pembayaran</h2>
-            <p>Verifikasi bukti pembayaran yang diupload petugas</p>
-          </div>
+        <div class="page-head">
+          <h2>Approval Pembayaran</h2>
+          <p>Verifikasi bukti pembayaran yang diupload petugas</p>
         </div>
-        <div class="table-wrap" style="background:#fff;border-radius:12px;box-shadow:var(--s1)">
+        <div class="table-wrap">
           <table>
-            <thead><tr><th style="text-align:left">Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Bukti</th><th>Status</th><th>Aksi</th></tr></thead>
             <tbody id="approval-tbody"></tbody>
           </table>
         </div>
@@ -387,20 +340,18 @@
 
       <!-- ═══ ADMIN: REKAP TUNGGAKAN ═══ -->
       <div class="content-section" id="section-rekap">
-        <div class="admin-section-head">
-          <div>
-            <h2>Rekap Tunggakan</h2>
-            <p>Wajib pajak yang masih memiliki tunggakan 2020–2026</p>
-          </div>
+        <div class="page-head">
+          <h2>Rekap Tunggakan</h2>
+          <p>Wajib pajak yang masih memiliki tunggakan 2020–2026</p>
         </div>
         <div class="kpi-grid" style="margin-bottom:24px">
           <div class="kpi-card kpi-red"><div class="kpi-icon">📊</div><div class="kpi-val" id="rek-total">—</div><div class="kpi-label">Total Tunggakan</div></div>
           <div class="kpi-card kpi-yellow"><div class="kpi-icon">📅</div><div class="kpi-val" id="rek-1th">—</div><div class="kpi-label">Tunggak 1 Tahun</div></div>
           <div class="kpi-card kpi-red"><div class="kpi-icon">📅</div><div class="kpi-val" id="rek-multi">—</div><div class="kpi-label">Tunggak >1 Tahun</div></div>
         </div>
-        <div class="table-wrap" style="background:#fff;border-radius:12px;box-shadow:var(--s1)">
+        <div class="table-wrap">
           <table>
-            <thead><tr><th style="text-align:left">NOP</th><th>Nama WP</th><th>Dusun / RW / RT</th><th>Tahun Tunggak</th><th>Jumlah</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>NOP</th><th>Nama WP</th><th>RW / RT</th><th>Tahun Tunggak</th><th>Jumlah</th><th>Total Tagihan</th><th>Aksi</th></tr></thead>
             <tbody id="rekap-tbody"></tbody>
           </table>
         </div>
@@ -408,15 +359,13 @@
 
       <!-- ═══ ADMIN: RIWAYAT ═══ -->
       <div class="content-section" id="section-riwayat">
-        <div class="admin-section-head">
-          <div>
-            <h2>Riwayat Pembayaran</h2>
-            <p>Semua transaksi yang telah diverifikasi</p>
-          </div>
+        <div class="page-head">
+          <h2>Riwayat Pembayaran</h2>
+          <p>Semua transaksi yang telah diverifikasi</p>
         </div>
-        <div class="table-wrap" style="background:#fff;border-radius:12px;box-shadow:var(--s1)">
+        <div class="table-wrap">
           <table>
-            <thead><tr><th style="text-align:left">Tgl Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove Oleh</th></tr></thead>
+            <thead><tr><th>Tgl Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove Oleh</th></tr></thead>
             <tbody id="riwayat-tbody"></tbody>
           </table>
         </div>
@@ -424,16 +373,16 @@
 
       <!-- ═══ ADMIN: MANAJEMEN PETUGAS ═══ -->
       <div class="content-section" id="section-petugas">
-        <div class="admin-section-head">
-          <div>
+        <div class="card-head">
+          <div class="page-head" style="margin:0">
             <h2>Manajemen Petugas</h2>
             <p>Kelola akun Petugas RT dan Kolektor</p>
           </div>
-          <button class="btn btn-outline" onclick="openModalTambahPetugas()">+ Tambah Petugas</button>
+          <button class="btn btn-primary" onclick="openModalTambahPetugas()">+ Tambah Petugas</button>
         </div>
-        <div class="table-wrap" style="background:#fff;border-radius:12px;box-shadow:var(--s1)">
+        <div class="table-wrap">
           <table>
-            <thead><tr><th style="text-align:left">Nama</th><th>Username</th><th>Role</th><th>Wilayah</th><th>Total Upload</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Wilayah</th><th>Total Upload</th><th>Aksi</th></tr></thead>
             <tbody id="petugas-tbody"></tbody>
           </table>
         </div>
@@ -441,11 +390,9 @@
 
       <!-- ═══ PETUGAS: DASHBOARD ═══ -->
       <div class="content-section" id="section-dashboard-petugas">
-        <div class="admin-section-head">
-          <div>
-            <h2>Dashboard Saya</h2>
-            <p id="petugas-greeting">Selamat datang</p>
-          </div>
+        <div class="page-head">
+          <h2>Dashboard Saya</h2>
+          <p id="petugas-greeting">Selamat datang</p>
         </div>
         <div class="kpi-grid">
           <div class="kpi-card kpi-green"><div class="kpi-icon">✅</div><div class="kpi-val" id="pet-lunas">—</div><div class="kpi-label">Sudah Lunas (Wilayah Saya)</div></div>
@@ -459,7 +406,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th style="text-align:left">NOP</th><th>Nama WP</th><th>Status</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>NOP</th><th>Nama WP</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody id="petugas-wp-tbody"></tbody>
             </table>
           </div>
@@ -468,11 +415,9 @@
 
       <!-- ═══ PETUGAS: INPUT BAYAR ═══ -->
       <div class="content-section" id="section-bayar-wp">
-        <div class="admin-section-head">
-          <div>
-            <h2>Input Pembayaran</h2>
-            <p>Upload bukti bayar wajib pajak ke sistem desa</p>
-          </div>
+        <div class="page-head">
+          <h2>Input Pembayaran</h2>
+          <p>Upload bukti bayar wajib pajak ke sistem desa</p>
         </div>
         <div class="two-col">
           <div class="card">
@@ -517,28 +462,141 @@
 
       <!-- ═══ PETUGAS: RIWAYAT UPLOAD ═══ -->
       <div class="content-section" id="section-riwayat-petugas">
-        <div class="admin-section-head">
-          <div>
-            <h2>Riwayat Upload Saya</h2>
-            <p>Semua bukti bayar yang pernah Anda upload</p>
-          </div>
+        <div class="page-head">
+          <h2>Riwayat Upload Saya</h2>
+          <p>Semua bukti bayar yang pernah Anda upload</p>
         </div>
-        <div class="table-wrap" style="background:#fff;border-radius:12px;box-shadow:var(--s1)">
+        <div class="table-wrap">
           <table>
-            <thead><tr><th style="text-align:left">Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Status</th><th>Keterangan Admin</th></tr></thead>
+            <thead><tr><th>Tanggal</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Status</th><th>Keterangan Admin</th></tr></thead>
             <tbody id="riwayat-petugas-tbody"></tbody>
           </table>
         </div>
       </div>
 
-    </main>
-  </div>
+
+      <!-- ═══ ADMIN: IMPORT DATA ═══ -->
+      <div class="content-section" id="section-import-data">
+        <div class="page-head">
+          <h2>Import Data Excel</h2>
+          <p>Upload file Excel untuk memperbarui database wajib pajak</p>
+        </div>
+
+        <!-- Status DB saat ini -->
+        <div id="import-db-status"></div>
+
+        <div class="two-col" style="margin-top:20px">
+
+          <!-- Upload Belum Bayar -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">📋 Data Belum Bayar 2020–2025</div>
+                <div class="card-sub">Format: NAMA | RT | RW | NOP | WP (per sheet tahun)</div>
+              </div>
+            </div>
+            <div class="upload-zone" onclick="document.getElementById('file-belum-bayar').click()" style="margin-bottom:16px">
+              <input type="file" id="file-belum-bayar" accept=".xlsx,.xls" onchange="handleImportBelumBayar(this)">
+              <div class="upload-icon">📊</div>
+              <div class="upload-text">Klik untuk pilih file<br><small>DATA_BELUM_BAYAR_PBB_2020-2025.xlsx</small></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="btn-import-bb" onclick="document.getElementById('file-belum-bayar').click()">
+              📂 Pilih File Excel
+            </button>
+            <div style="margin-top:16px;padding:12px;background:var(--c-brand-pale);border-radius:var(--r-md);font-size:.78rem;color:var(--c-brand-dark);line-height:1.7">
+              <strong>Format yang didukung:</strong><br>
+              ✓ Sheet per tahun: 2020, 2021, 2022, 2023, 2024, 2025<br>
+              ✓ Kolom: NAMA, RT, RW, NOP (atau NO. SPPT), WP (atau WB)<br>
+              ✓ Data otomatis di-merge berdasarkan NOP
+            </div>
+          </div>
+
+          <!-- Upload SPPT 2026 -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">📄 SPPT PBB 2026</div>
+                <div class="card-sub">Format: NOP | NAMA | RT | RW | WP/Tagihan</div>
+              </div>
+            </div>
+
+            <!-- Warning encrypted -->
+            <div id="sppt-enc-warn" class="alert alert-warn" style="display:none;margin-bottom:16px">
+              <div class="alert-icon">🔒</div>
+              <div>
+                <h4>File Terproteksi Password</h4>
+                <p>Hapus password Excel dulu: <strong>Review → Unprotect Sheet</strong> → simpan ulang → upload lagi.</p>
+              </div>
+            </div>
+
+            <div class="upload-zone" onclick="document.getElementById('file-sppt').click()" style="margin-bottom:16px">
+              <input type="file" id="file-sppt" accept=".xlsx,.xls" onchange="handleImportSppt(this)">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">Klik untuk pilih file<br><small>SPPT_PBB_2026.xlsx</small></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="btn-import-sppt" onclick="document.getElementById('file-sppt').click()">
+              📂 Pilih File SPPT
+            </button>
+
+            <div class="alert alert-warn" style="margin-top:16px">
+              <div class="alert-icon">⚠️</div>
+              <div>
+                <h4>File SPPT Anda Terenkripsi</h4>
+                <p>SPPT_PBB_2026.xlsx terdeteksi berpassword. Ikuti langkah ini di Excel:</p>
+                <ol style="margin-top:6px;padding-left:16px;font-size:.78rem;line-height:1.8">
+                  <li>Buka file di Microsoft Excel</li>
+                  <li>Klik <strong>File → Info → Protect Workbook → Encrypt with Password</strong></li>
+                  <li>Hapus password (kosongkan) → OK</li>
+                  <li>Simpan ulang (Ctrl+S)</li>
+                  <li>Upload file yang sudah tidak berpassword</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panduan format -->
+        <div class="card" style="margin-top:4px">
+          <div class="card-title" style="margin-bottom:14px">📖 Panduan Format Excel</div>
+          <div class="two-col">
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--c-muted)">FILE BELUM BAYAR — Contoh Sheet "2025"</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>NAMA</th><th>RT</th><th>RW</th><th>NOP</th><th>WP</th></tr></thead>
+                  <tbody>
+                    <tr><td>IIS TITIN</td><td>02</td><td>04</td><td>32.15.031.003.001.0010.0</td><td>28000</td></tr>
+                    <tr><td>AGUS</td><td>02</td><td>07</td><td>32.15.031.003.001.0015.0</td><td>57000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:8px;color:var(--c-muted)">FILE SPPT 2026 — Sheet pertama</p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>NAMA</th><th>RT</th><th>RW</th><th>NOP</th><th>WP</th></tr></thead>
+                  <tbody>
+                    <tr><td>SUHEDI</td><td>01</td><td>05</td><td>32.15.031.003.001.0031.0</td><td>40000</td></tr>
+                    <tr><td>ATMAJA</td><td>02</td><td>05</td><td>32.15.031.003.001.0038.0</td><td>13000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /main-content -->
+  </div><!-- /app-layout -->
 </div><!-- /page-app -->
 
 
 <!-- ╔═══════════════════════════════════════╗ -->
 <!-- ║  MODALS                               ║ -->
 <!-- ╚═══════════════════════════════════════╝ -->
+
+<!-- Detail WP -->
 <div class="modal-overlay" id="modal-detail-wp">
   <div class="modal">
     <div class="modal-head">
@@ -549,6 +607,7 @@
   </div>
 </div>
 
+<!-- Tambah WP -->
 <div class="modal-overlay" id="modal-tambah-wp">
   <div class="modal">
     <div class="modal-head">
@@ -572,6 +631,7 @@
   </div>
 </div>
 
+<!-- Tambah Petugas -->
 <div class="modal-overlay" id="modal-tambah-petugas">
   <div class="modal">
     <div class="modal-head">
@@ -592,6 +652,7 @@
   </div>
 </div>
 
+<!-- Bukti Pembayaran -->
 <div class="modal-overlay" id="modal-bukti">
   <div class="modal">
     <div class="modal-head">
@@ -602,6 +663,12 @@
   </div>
 </div>
 
+<!-- ░░ KPI init (total WP shown in admin dashboard) ░░ -->
+<script>
+  // Minor inline: set admin KPI total WP once data.js loads
+  window._initKpiTotal = true;
+</script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
+<!-- PATCH: injected additions. Real index.html is self-contained below -->
