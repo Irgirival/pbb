@@ -33,6 +33,13 @@ function rndName() {
   return first[rnd(0, first.length - 1)] + " " + last[rnd(0, last.length - 1)];
 }
 
+// Estimasi nominal PBB per WP (dummy, untuk tampilan Rp tunggakan)
+function rndPajak(seed) {
+  const base = 23000;
+  const r = seededRnd(seed * 7.3);
+  return base + Math.floor(r * 250000);
+}
+
 // ─── GENERATE DATA WP ────────────────────────────────────────
 export const wpData = [];
 let _wpId = 1;
@@ -44,14 +51,16 @@ DUSUN_DATA.forEach((d, di) => {
     const nop = `32.${String(di + 1).padStart(2,"0")}.${String(rnd(100,999))}.${String(rnd(100,999))}.${String(rnd(100,999))}-${String(rnd(1000,9999))}.${rnd(0,9)}`;
 
     const payments = {};
+    const nominal  = {};
     TAHUN_LIST.forEach((y, yi) => {
       const r = seededRnd(_wpId * 100 + yi);
       if (y < 2025)      payments[y] = r > 0.10 ? "lunas" : "tunggakan";
       else if (y === 2025) payments[y] = r > 0.15 ? "lunas" : r > 0.07 ? "pending" : "tunggakan";
       else                 payments[y] = r > 0.30 ? "lunas" : r > 0.15 ? "pending" : "tunggakan";
+      nominal[y] = rndPajak(_wpId * 10 + yi);
     });
 
-    wpData.push({ id: _wpId++, nop, nama: rndName(), dusun: d.nama, rw, rt, payments });
+    wpData.push({ id: _wpId++, nop, nama: rndName(), dusun: d.nama, rw, rt, payments, nominal });
   }
 });
 
@@ -174,6 +183,7 @@ export function addWP({ nop, nama, dusun, rw, rt }) {
     id: wpData.length + 1,
     nop, nama, dusun, rw, rt,
     payments: Object.fromEntries(TAHUN_LIST.map(y => [y, "tunggakan"])),
+    nominal:  Object.fromEntries(TAHUN_LIST.map(y => [y, 23000])),
   };
   wpData.push(newWP);
   return newWP;
@@ -212,7 +222,9 @@ export function getDusunStats(tahun = 2026) {
     const pending = all.filter(w => w.payments[tahun] === "pending").length;
     const tunggak = all.length - lunas - pending;
     const persen  = Math.round((lunas / all.length) * 100);
-    return { ...d, total: all.length, lunas, pending, tunggak, persen };
+    const totalRp = all.filter(w => w.payments[tahun] === "tunggakan")
+                        .reduce((s,w) => s + (w.nominal?.[tahun] || 0), 0);
+    return { ...d, total: all.length, lunas, pending, tunggak, persen, totalRp };
   });
 }
 
@@ -256,4 +268,78 @@ export function getTunggakanList() {
 
 export function getPendingApprovals() {
   return pendingList.filter(p => p.status === "pending");
+}
+
+// ─── ANALYTICS: TUNGGAKAN PER DUSUN / RW / RT (untuk dashboard publik) ─────
+
+/**
+ * Ringkasan tunggakan untuk tahun tertentu, dikelompokkan per dusun.
+ * Tiap dusun berisi breakdown per RW, dan tiap RW berisi breakdown per RT.
+ * Hanya menghitung WP dengan status "tunggakan" pada tahun tsb.
+ */
+export function getTunggakanBreakdown(tahun = 2026) {
+  return DUSUN_DATA.map(d => {
+    const wpDusun = wpData.filter(w => w.dusun === d.nama && w.payments[tahun] === "tunggakan");
+    const totalRp = wpDusun.reduce((s, w) => s + (w.nominal?.[tahun] || 0), 0);
+
+    const rwMap = {};
+    wpDusun.forEach(w => {
+      if (!rwMap[w.rw]) rwMap[w.rw] = { rw: w.rw, items: [], totalRp: 0 };
+      rwMap[w.rw].items.push(w);
+      rwMap[w.rw].totalRp += (w.nominal?.[tahun] || 0);
+    });
+
+    const rwList = Object.values(rwMap).map(rwEntry => {
+      const rtMap = {};
+      rwEntry.items.forEach(w => {
+        if (!rtMap[w.rt]) rtMap[w.rt] = { rt: w.rt, wp: 0, totalRp: 0 };
+        rtMap[w.rt].wp++;
+        rtMap[w.rt].totalRp += (w.nominal?.[tahun] || 0);
+      });
+      const rtList = Object.values(rtMap).sort((a,b) => a.rt.localeCompare(b.rt, undefined, {numeric:true}));
+      return { rw: rwEntry.rw, wp: rwEntry.items.length, totalRp: rwEntry.totalRp, rtList };
+    }).sort((a,b) => a.rw.localeCompare(b.rw, undefined, {numeric:true}));
+
+    return { dusun: d.nama, wp: wpDusun.length, totalRp, rwList };
+  });
+}
+
+/**
+ * Daftar WP tunggakan untuk tahun tertentu, dengan filter opsional
+ * dusun / rw / rt. Mengembalikan data flat siap ditampilkan di tabel.
+ */
+export function getTunggakanWP(tahun = 2026, { dusun = "", rw = "", rt = "" } = {}) {
+  return wpData.filter(w => {
+    if (w.payments[tahun] !== "tunggakan") return false;
+    if (dusun && w.dusun !== dusun) return false;
+    if (rw && w.rw !== rw) return false;
+    if (rt && w.rt !== rt) return false;
+    return true;
+  }).map(w => ({
+    id: w.id, nop: w.nop, nama: w.nama, dusun: w.dusun, rw: w.rw, rt: w.rt,
+    nominal: w.nominal?.[tahun] || 0,
+    payments: w.payments,
+  }));
+}
+
+/** Total tunggakan (Rp) seluruh desa untuk tahun tertentu. */
+export function getTotalTunggakanRp(tahun = 2026) {
+  return wpData
+    .filter(w => w.payments[tahun] === "tunggakan")
+    .reduce((s, w) => s + (w.nominal?.[tahun] || 0), 0);
+}
+
+/** Daftar RW unik untuk dropdown filter, opsional dibatasi ke 1 dusun. */
+export function getRWList(dusunNama = "") {
+  const d = DUSUN_DATA.find(x => x.nama === dusunNama);
+  if (d) return [...d.rw];
+  return [...new Set(wpData.map(w => w.rw))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+}
+
+/** Daftar RT unik untuk dropdown filter, dibatasi ke 1 RW (opsional dusun). */
+export function getRTList(rwVal = "", dusunNama = "") {
+  let pool = wpData;
+  if (dusunNama) pool = pool.filter(w => w.dusun === dusunNama);
+  if (rwVal) pool = pool.filter(w => w.rw === rwVal);
+  return [...new Set(pool.map(w => w.rt))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
 }
