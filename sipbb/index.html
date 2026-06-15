@@ -99,32 +99,19 @@
     </div>
     <div class="dusun-grid" id="dusun-grid"></div>
 
-    <!-- Cek Status WP -->
+    <!-- Cek Status WP - PRIVASI TERJAGA -->
     <div class="chart-card">
       <div class="chart-card-head">
-        <h3>🔍 Cek Status Wajib Pajak</h3>
-        <p>Masukkan NOP atau nama untuk melihat riwayat pembayaran</p>
+        <h3>🔍 Cek Status PBB Anda</h3>
+        <p>Masukkan NOP untuk melihat status pembayaran PBB Anda. <strong>Data nama hanya ditampilkan untuk pemilik NOP yang sah.</strong></p>
       </div>
       <div class="filter-row">
         <div class="search-wrap" style="flex:2">
           <span class="icon">🔍</span>
-          <input type="text" placeholder="Cari nama atau NOP…" id="pub-search" oninput="pubSearch()">
+          <input type="text" placeholder="Masukkan NOP lengkap…" id="pub-search" oninput="pubSearch()">
         </div>
-        <select class="sel-filter" id="pub-filter-status" onchange="pubSearch()">
-          <option value="">Semua Status</option>
-          <option value="lunas">Lunas</option>
-          <option value="pending">Pending</option>
-          <option value="tunggakan">Tunggakan</option>
-        </select>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>NOP</th><th>Nama WP</th><th>Dusun / RW / RT</th><th>2024</th><th>2025</th><th>2026</th><th>Tunggakan</th></tr>
-          </thead>
-          <tbody id="pub-table-body"></tbody>
-        </table>
-      </div>
+      <div id="pub-search-result"></div>
     </div>
 
   </div><!-- /pub-content -->
