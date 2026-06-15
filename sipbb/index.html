@@ -32,6 +32,7 @@
   </a>
   <div class="nb-actions">
     <button class="btn btn-ghost"    onclick="showPage('public')"  id="btn-nav-public">🏠 Dashboard</button>
+    <button class="btn btn-ghost"    onclick="showPage('global')"  id="btn-nav-global">🌍 Profil Desa</button>
     <button class="btn btn-outline btn-sm" onclick="showPage('login')" id="btn-nav-login">Masuk</button>
     <button class="btn btn-danger  btn-sm" onclick="handleLogout()"    id="btn-nav-logout" style="display:none">Keluar</button>
     <!-- Mobile hamburger -->
@@ -129,6 +130,137 @@
   </div><!-- /pub-content -->
 </div><!-- /page-public -->
 
+<!-- ╔═══════════════════════════════════════╗ -->
+<!-- ║  PAGE: GLOBAL DASHBOARD (PROFIL DESA) ║ -->
+<!-- ╚═══════════════════════════════════════╝ -->
+<div class="page" id="page-global">
+  <section class="hero" style="background: linear-gradient(145deg, #1a4d2e 0%, #0e6b3f 55%, #1d9660 100%);">
+    <div class="hero-inner">
+      <div class="hero-pill">🏛️ Profil Desa – Kasomalang Kulon</div>
+      <h1 class="hero-h1">Desa <em>Kasomalang Kulon</em></h1>
+      <p class="hero-lead">Kecamatan Kasomalang, Kabupaten Subang, Jawa Barat. Sistem informasi transparan untuk masyarakat.</p>
+    </div>
+  </section>
+  
+  <div class="pub-content">
+    <!-- Info Desa -->
+    <div class="chart-card" style="margin-bottom:24px">
+      <div class="chart-card-head">
+        <h3>📍 Tentang Desa Kasomalang Kulon</h3>
+        <p>Informasi umum tentang desa kami</p>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+        <div>
+          <h4 style="font-size:.9rem; margin-bottom:12px; color:var(--c-brand-dark)">🏘️ Profil Wilayah</h4>
+          <div class="info-row"><label>Kecamatan</label><strong>Kasomalang</strong></div>
+          <div class="info-row"><label>Kabupaten</label><strong>Subang</strong></div>
+          <div class="info-row"><label>Provinsi</label><strong>Jawa Barat</strong></div>
+          <div class="info-row"><label>Kode Desa</label><strong>32.13.07.2003</strong></div>
+          <div class="info-row"><label>Luas Wilayah</label><strong>± 245 Ha</strong></div>
+        </div>
+        <div>
+          <h4 style="font-size:.9rem; margin-bottom:12px; color:var(--c-brand-dark)">👥 Demografi</h4>
+          <div class="info-row"><label>Total Penduduk</label><strong>± 4.250 Jiwa</strong></div>
+          <div class="info-row"><label>Laki-laki</label><strong>± 2.100 Jiwa</strong></div>
+          <div class="info-row"><label>Perempuan</label><strong>± 2.150 Jiwa</strong></div>
+          <div class="info-row"><label>Jumlah KK</label><strong>± 1.280 KK</strong></div>
+          <div class="info-row"><label>Dusun</label><strong>7 Dusun</strong></div>
+        </div>
+        <div>
+          <h4 style="font-size:.9rem; margin-bottom:12px; color:var(--c-brand-dark)">🏢 Kontak Pemerintah Desa</h4>
+          <div class="info-row"><label>Alamat Kantor</label><strong>Jl. Raya Kasomalang No. 1</strong></div>
+          <div class="info-row"><label>Telepon</label><strong>(0260) XXXXXXX</strong></div>
+          <div class="info-row"><label>Email</label><strong>desa@kasomalangkulon.id</strong></div>
+          <div class="info-row"><label>Jam Operasional</label><strong>Senin-Jumat, 08:00-16:00</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Struktur Organisasi -->
+    <div class="chart-card" style="margin-bottom:24px">
+      <div class="chart-card-head">
+        <h3>👨‍💼 Struktur Pemerintahan</h3>
+        <p>Perangkat Desa Kasomalang Kulon</p>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%; font-size:.85rem">
+          <thead>
+            <tr><th>No</th><th>Nama</th><th>Jabatan</th><th>NIP</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><strong>H. Ahmad Supriyadi</strong></td><td>Kepala Desa</td><td>-</td></tr>
+            <tr><td>2</td><td><strong>Dedi Kurniawan, A.Md</strong></td><td>Sekretaris Desa</td><td>19850101 201001 1 001</td></tr>
+            <tr><td>3</td><td><strong>Uus Rustaman</strong></td><td>Kaur Keuangan</td><td>19870202 201201 1 002</td></tr>
+            <tr><td>4</td><td><strong>Siti Nurjanah</strong></td><td>Kaur Umum</td><td>19900303 201501 2 003</td></tr>
+            <tr><td>5</td><td><strong>Asep Sunandar</strong></td><td>Kadus Kidul</td><td>-</td></tr>
+            <tr><td>6</td><td><strong>Yayan Sutisna</strong></td><td>Kadus Kulon</td><td>-</td></tr>
+            <tr><td>7</td><td><strong>Rizky Pratama</strong></td><td>Kadus Wetan</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Statistik PBB Global -->
+    <div class="section-head">
+      <h2>📊 Statistik PBB Desa</h2>
+      <p>Ringkasan pembayaran PBB seluruh warga Desa Kasomalang Kulon</p>
+    </div>
+    
+    <div class="kpi-grid" style="margin-bottom:24px">
+      <div class="kpi-card kpi-green" style="animation-delay:.1s">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-val" id="global-lunas">—</div>
+        <div class="kpi-label">Wajib Pajak Lunas 2026</div>
+      </div>
+      <div class="kpi-card kpi-red" style="animation-delay:.2s">
+        <div class="kpi-icon">⚠️</div>
+        <div class="kpi-val" id="global-tunggak">—</div>
+        <div class="kpi-label">Belum Lunas 2026</div>
+      </div>
+      <div class="kpi-card kpi-yellow" style="animation-delay:.3s">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-val" id="global-pending">—</div>
+        <div class="kpi-label">Pending Verifikasi</div>
+      </div>
+      <div class="kpi-card kpi-blue" style="animation-delay:.4s">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-val" id="global-total">—</div>
+        <div class="kpi-label">Total Wajib Pajak</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Progress Pembayaran per Tahun</div><div class="card-sub">2020–2026</div></div>
+        </div>
+        <div class="chart-wrap"><canvas id="global-chart-tren"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Distribusi Status 2026</div><div class="card-sub">Lunas vs Tunggakan</div></div>
+        </div>
+        <div class="chart-wrap"><canvas id="global-chart-donut"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Cek NOP Publik (tanpa nama tersebar) -->
+    <div class="chart-card" style="margin-top:24px">
+      <div class="chart-card-head">
+        <h3>🔍 Cek Data PBB Anda</h3>
+        <p>Masukkan NOP untuk melihat status pembayaran PBB Anda. Data nama hanya ditampilkan untuk pemilik NOP yang sah.</p>
+      </div>
+      <div class="filter-row" style="margin-bottom:16px">
+        <div class="search-wrap" style="flex:2">
+          <span class="icon">🔍</span>
+          <input type="text" placeholder="Masukkan NOP lengkap…" id="global-search-nop" oninput="globalSearchNOP()">
+        </div>
+      </div>
+      <div id="global-search-result"></div>
+    </div>
+
+  </div>
+</div>
 
 <!-- ╔═══════════════════════════════════════╗ -->
 <!-- ║  PAGE: LOGIN                          ║ -->
@@ -359,8 +491,32 @@
       <div class="content-section" id="section-riwayat">
         <div class="page-head">
           <h2>Riwayat Pembayaran</h2>
-          <p>Semua transaksi yang telah diverifikasi</p>
+          <p>Semua transaksi yang telah diverifikasi dengan filter tanggal</p>
         </div>
+        
+        <!-- Filter Tanggal -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="filter-row">
+            <div class="form-group">
+              <label class="form-label">Dari Tanggal</label>
+              <input type="date" class="form-input" id="riwayat-from-date" onchange="buildRiwayatTable()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sampai Tanggal</label>
+              <input type="date" class="form-input" id="riwayat-to-date" onchange="buildRiwayatTable()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Filter Petugas</label>
+              <select class="form-input form-select" id="riwayat-filter-petugas" onchange="buildRiwayatTable()">
+                <option value="">Semua Petugas</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:9px">
+              <button class="btn btn-primary" onclick="exportRiwayat()">📥 Export Excel</button>
+            </div>
+          </div>
+        </div>
+        
         <div class="table-wrap">
           <table>
             <thead><tr><th>Tgl Lunas</th><th>NOP</th><th>Nama WP</th><th>Tahun</th><th>Petugas</th><th>Diapprove Oleh</th></tr></thead>
@@ -420,6 +576,17 @@
         <div class="two-col">
           <div class="card">
             <div class="card-title" style="margin-bottom:16px">Form Upload Bukti Bayar</div>
+            
+            <!-- Pilihan Metode Upload -->
+            <div class="form-group">
+              <label class="form-label">Metode Pembayaran</label>
+              <select class="form-input form-select" id="bayar-metode" onchange="toggleMetodeBayar()">
+                <option value="rt">Via Petugas RT</option>
+                <option value="kolektor">Via Kolektor</option>
+                <option value="bank">Via Bank (Transfer/ATM)</option>
+              </select>
+            </div>
+            
             <div class="form-group">
               <label class="form-label">Cari Wajib Pajak (Nama / NOP)</label>
               <input class="form-input" type="text" id="bayar-search" placeholder="Ketik nama atau NOP…" oninput="searchBayarWP()">

@@ -76,6 +76,7 @@ export function showPage(pageId) {
   el("btn-nav-logout").style.display = loggedIn ? "" : "none";
 
   if (pageId === "app" && currentUser) refreshAppData();
+  if (pageId === "global") initGlobalDashboard();
 }
 
 const NAV_MAP = {
@@ -485,17 +486,106 @@ function buildRekapTable() {
 
 // ─── ADMIN: RIWAYAT ───────────────────────────────────────────
 function buildRiwayatTable() {
-  el("riwayat-tbody").innerHTML = riwayatList.map(r => `
-    <tr>
-      <td>${r.tglLunas}</td>
-      <td class="mono">${shortNOP(r.nop)}</td>
-      <td><strong>${r.nama}</strong></td>
-      <td><strong>${r.tahun}</strong></td>
-      <td>${r.petugas}</td>
-      <td><span class="badge b-lunas">${r.approvedBy}</span></td>
-    </tr>`
-  ).join("");
+  const fromDate = el("riwayat-from-date")?.value;
+  const toDate = el("riwayat-to-date")?.value;
+  const filterPetugas = el("riwayat-filter-petugas")?.value || "";
+  
+  // Populate petugas dropdown if empty
+  const petugasSelect = el("riwayat-filter-petugas");
+  if (petugasSelect && petugasSelect.options.length === 1) {
+    const uniquePetugas = [...new Set(riwayatList.map(r => r.petugas))];
+    uniquePetugas.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      petugasSelect.appendChild(opt);
+    });
+  }
+  
+  // Filter data based on date range and petugas
+  let filteredData = riwayatList.filter(r => {
+    // Parse tanggal dari format DD/MM/YYYY ke Date object
+    const parts = r.tglLunas.split("/");
+    const rDate = new Date(parts[2], parts[1] - 1, parts[0]);
+    
+    let matchDate = true;
+    if (fromDate) {
+      const from = new Date(fromDate);
+      if (rDate < from) matchDate = false;
+    }
+    if (toDate) {
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+      if (rDate > to) matchDate = false;
+    }
+    
+    const matchPetugas = !filterPetugas || r.petugas === filterPetugas;
+    
+    return matchDate && matchPetugas;
+  });
+  
+  el("riwayat-tbody").innerHTML = filteredData.length
+    ? filteredData.map(r => `
+        <tr>
+          <td>${r.tglLunas}</td>
+          <td class="mono">${shortNOP(r.nop)}</td>
+          <td><strong>${r.nama}</strong></td>
+          <td><strong>${r.tahun}</strong></td>
+          <td>${r.petugas}</td>
+          <td><span class="badge b-lunas">${r.approvedBy}</span></td>
+        </tr>`).join("")
+    : `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--c-muted)">Tidak ada data untuk periode yang dipilih</td></tr>`;
 }
+
+// Export Riwayat to Excel/CSV
+window.exportRiwayat = function() {
+  const fromDate = el("riwayat-from-date")?.value;
+  const toDate = el("riwayat-to-date")?.value;
+  const filterPetugas = el("riwayat-filter-petugas")?.value || "";
+  
+  let filteredData = riwayatList.filter(r => {
+    const parts = r.tglLunas.split("/");
+    const rDate = new Date(parts[2], parts[1] - 1, parts[0]);
+    
+    let matchDate = true;
+    if (fromDate) {
+      const from = new Date(fromDate);
+      if (rDate < from) matchDate = false;
+    }
+    if (toDate) {
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999);
+      if (rDate > to) matchDate = false;
+    }
+    
+    const matchPetugas = !filterPetugas || r.petugas === filterPetugas;
+    return matchDate && matchPetugas;
+  });
+  
+  if (!filteredData.length) {
+    toast("Tidak ada data untuk diekspor", "warn");
+    return;
+  }
+  
+  // Create CSV content
+  let csv = "Tanggal,NOP,Nama WP,Tahun,Petugas,Disetujui Oleh\n";
+  filteredData.forEach(r => {
+    csv += `${r.tglLunas},"${r.nop}","${r.nama}",${r.tahun},"${r.petugas}","${r.approvedBy}"\n`;
+  });
+  
+  // Download file
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `riwayat_pbb_${fromDate || "all"}_to_${toDate || "all"}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  toast(`✅ Berhasil mengekspor ${filteredData.length} data`);
+};
 
 // ─── ADMIN: PETUGAS ───────────────────────────────────────────
 function buildPetugasTable() {
@@ -549,9 +639,26 @@ function buildPetugasDashboard() {
   if (!currentUser) return;
   el("petugas-greeting").textContent = `Halo, ${currentUser.nama} — ${currentUser.wilayah || "Semua Wilayah"}`;
 
-  // Ambil WP dari wilayah petugas (simplified: ambil 80 WP pertama)
-  const myWP = wpData.slice(0, 80);
-  const s    = { lunas:0, belum:0, pending:0 };
+  // Filter WP berdasarkan wilayah petugas (RT/RW)
+  let myWP = [];
+  
+  if (currentUser.role === "rt") {
+    // Petugas RT hanya melihat WP dari RT-nya saja
+    const rtMatch = currentUser.wilayah.match(/RT\s*(\d+)/i);
+    const rtNumber = rtMatch ? rtMatch[1].padStart(3, '0') : "";
+    
+    myWP = wpData.filter(w => {
+      if (rtNumber && w.rt !== rtNumber) return false;
+      return true;
+    });
+  } else if (currentUser.role === "kolektor") {
+    // Kolektor bisa melihat semua WP
+    myWP = wpData;
+  } else {
+    myWP = wpData.slice(0, 80);
+  }
+  
+  const s = { lunas:0, belum:0, pending:0 };
   myWP.forEach(w => {
     const st = w.payments[2026];
     if (st === "lunas")     s.lunas++;
@@ -566,11 +673,14 @@ function buildPetugasDashboard() {
 
   el("petugas-wp-tbody").innerHTML = myWP
     .filter(w => w.payments[2026] !== "lunas")
-    .slice(0, 25)
+    .slice(0, 50)
     .map(w => `
       <tr>
         <td class="mono">${shortNOP(w.nop)}</td>
         <td><strong>${w.nama}</strong></td>
+        <td>${w.dusun}</td>
+        <td>RW ${w.rw}</td>
+        <td>RT ${w.rt}</td>
         <td>${statusBadge(w.payments[2026])}</td>
         <td><button class="btn btn-primary btn-sm" onclick="prefillBayar(${w.id})">Input Bayar</button></td>
       </tr>`)
@@ -650,14 +760,33 @@ window.previewBukti = function(input) {
   }
 };
 
+// Toggle tampilan berdasarkan metode pembayaran
+window.toggleMetodeBayar = function() {
+  const metode = el("bayar-metode").value;
+  const uploadArea = el("upload-area");
+  const uploadText = uploadArea.querySelector(".upload-text");
+  
+  if (metode === "bank") {
+    uploadText.innerHTML = "Klik atau seret foto bukti transfer/struk ATM<br><small>JPG, PNG, maks 5 MB</small>";
+  } else if (metode === "kolektor") {
+    uploadText.innerHTML = "Klik atau seret foto bukti bayar ke kolektor<br><small>JPG, PNG, maks 5 MB</small>";
+  } else {
+    uploadText.innerHTML = "Klik atau seret foto bukti bayar<br><small>JPG, PNG, maks 5 MB</small>";
+  }
+};
+
 window.submitBayar = function() {
   if (!_selectedBayarWP) { toast("Pilih wajib pajak terlebih dahulu!", "err"); return; }
   const tahun = parseInt(el("bayar-tahun").value);
   const currentStatus = _selectedBayarWP.payments[tahun];
   if (currentStatus === "lunas") { toast("WP ini sudah lunas untuk tahun " + tahun, "warn"); return; }
   if (currentStatus === "pending") { toast("Sudah ada pengajuan pending untuk tahun " + tahun, "warn"); return; }
-
-  submitPayment({ wpId: _selectedBayarWP.id, tahun, petugasNama: currentUser.nama, file: _selectedBayarFile });
+  
+  // Ambil metode pembayaran
+  const metode = el("bayar-metode").value;
+  const keteranganTambahan = metode === "bank" ? " (Via Bank)" : metode === "kolektor" ? " (Via Kolektor)" : " (Via RT)";
+  
+  submitPayment({ wpId: _selectedBayarWP.id, tahun, petugasNama: currentUser.nama + keteranganTambahan, file: _selectedBayarFile });
   toast("✅ Bukti bayar diupload! Menunggu approval admin.");
 
   _selectedBayarWP = null; _selectedBayarFile = null;
@@ -708,6 +837,151 @@ window.doLogin     = doLogin;
 window.handleLogout = handleLogout;
 window.quickLogin  = quickLogin;
 window.toast       = toast;
+
+// ─── GLOBAL DASHBOARD FUNCTIONS ───────────────────────────────
+let globalCharts = {};
+
+function destroyGlobalChart(id) { 
+  if (globalCharts[id]) { 
+    globalCharts[id].destroy(); 
+    delete globalCharts[id]; 
+  } 
+}
+
+export function initGlobalDashboard() {
+  const s = getStats(2026);
+  
+  // Animate KPIs
+  animateCount("global-lunas", s.lunas);
+  animateCount("global-tunggak", s.tunggak);
+  animateCount("global-pending", s.pending);
+  animateCount("global-total", wpData.length);
+  
+  // Render charts
+  const tren = getTrenData();
+  const { lunas, pending, tunggak } = getStats(2026);
+  
+  // Tren Chart
+  destroyGlobalChart("global-chart-tren");
+  globalCharts["global-chart-tren"] = new Chart(el("global-chart-tren").getContext("2d"), {
+    type: "line",
+    data: {
+      labels: TAHUN_LIST.map(String),
+      datasets: [{
+        label: "% Lunas", 
+        data: tren,
+        borderColor: "#198c55", 
+        backgroundColor: "rgba(25,140,85,.09)",
+        fill: true, 
+        tension: .4, 
+        pointBackgroundColor: "#198c55", 
+        pointRadius: 4,
+      }],
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false, 
+      plugins: { legend: { display: false } },
+      scales: { 
+        y: { min: 0, max: 100, ticks: { callback: v => v + "%" }, grid: { color: "#dce5de" } }, 
+        x: { grid: { display: false } } 
+      } 
+    },
+  });
+  
+  // Donut Chart
+  destroyGlobalChart("global-chart-donut");
+  globalCharts["global-chart-donut"] = new Chart(el("global-chart-donut").getContext("2d"), {
+    type: "doughnut",
+    data: { 
+      labels: ["Lunas", "Pending", "Tunggakan"], 
+      datasets: [{ 
+        data: [lunas, pending, tunggak], 
+        backgroundColor: ["#198c55", "#d97706", "#d93025"], 
+        borderWidth: 0, 
+        hoverOffset: 8 
+      }] 
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false, 
+      plugins: { 
+        legend: { position: "bottom", labels: { padding: 14, font: { size: 12 } } } 
+      } 
+    },
+  });
+}
+
+window.globalSearchNOP = function() {
+  const nopQuery = el("global-search-nop").value.trim();
+  const resultDiv = el("global-search-result");
+  
+  if (!nopQuery) {
+    resultDiv.innerHTML = "";
+    return;
+  }
+  
+  const found = wpData.find(w => w.nop === nopQuery || w.nop.includes(nopQuery));
+  
+  if (!found) {
+    resultDiv.innerHTML = `<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div><h4>NOP Tidak Ditemukan</h4><p>NOP yang Anda masukkan tidak terdaftar dalam sistem. Silakan periksa kembali NOP Anda atau hubungi petugas desa.</p></div></div>`;
+    return;
+  }
+  
+  const tunggakYears = TAHUN_LIST.filter(y => found.payments[y] === "tunggakan");
+  const statusBadge = (s) => {
+    if (s === "lunas") return '<span class="badge b-lunas">Lunas</span>';
+    if (s === "pending") return '<span class="badge b-pending">Pending</span>';
+    return '<span class="badge b-tunggak">Tunggakan</span>';
+  };
+  
+  resultDiv.innerHTML = `
+    <div style="border:1px solid var(--c-border); border-radius:var(--r-md); padding:16px; background:var(--c-surface)">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--c-border)">
+        <div style="width:48px; height:48px; background:var(--c-brand); border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.5rem; font-weight:700">${found.nama.charAt(0)}</div>
+        <div>
+          <h4 style="font-size:1rem; margin:0; color:var(--c-text)">${found.nama}</h4>
+          <p style="font-size:.75rem; color:var(--c-muted); margin:2px 0 0">${found.dusun} - RW ${found.rw} / RT ${found.rt}</p>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:16px">
+        <label style="font-size:.7rem; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:.05em">NOP</label>
+        <div class="mono" style="font-size:.85rem; word-break:break-all">${found.nop}</div>
+      </div>
+      
+      <div style="margin-bottom:16px">
+        <label style="font-size:.7rem; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:.05em">Status Pembayaran per Tahun</label>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:8px; margin-top:8px">
+          ${[...TAHUN_LIST].reverse().map(y => `
+            <div style="text-align:center; padding:8px; border-radius:var(--r-sm); background:${found.payments[y] === 'lunas' ? 'var(--c-brand-pale)' : found.payments[y] === 'pending' ? 'var(--c-warn-pale)' : 'var(--c-danger-pale)'}">
+              <div style="font-size:.7rem; color:var(--c-muted)">${y}</div>
+              <div style="font-size:.75rem; font-weight:600">${statusBadge(found.payments[y])}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+      
+      ${tunggakYears.length ? `
+        <div class="alert alert-warn" style="margin:0">
+          <div class="alert-icon">⚠️</div>
+          <div>
+            <h4 style="font-size:.85rem">Memiliki Tunggakan</h4>
+            <p style="font-size:.78rem; margin:4px 0 0">Anda memiliki tunggakan untuk tahun: <strong>${tunggakYears.join(", ")}</strong>. Silakan segera melakukan pembayaran melalui petugas RT, kolektor, atau bank yang ditunjuk.</p>
+          </div>
+        </div>
+      ` : `
+        <div class="alert" style="margin:0; background:var(--c-brand-pale); border-color:var(--c-brand-light)">
+          <div class="alert-icon" style="color:var(--c-brand)">✅</div>
+          <div>
+            <h4 style="font-size:.85rem; color:var(--c-brand-dark)">Bebas Tunggakan</h4>
+            <p style="font-size:.78rem; margin:4px 0 0; color:var(--c-text-sec)">Alhamdulillah, semua kewajiban PBB Anda telah lunas. Terima kasih atas kontribusi Anda untuk pembangunan desa.</p>
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+};
 
 // ─── BOOT ─────────────────────────────────────────────────────
 window.addEventListener("load", () => {
