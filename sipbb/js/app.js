@@ -218,37 +218,97 @@ function buildDusunGrid() {
   ).join("");
 }
 
-// ─── PUBLIC TABLE ─────────────────────────────────────────────
-function buildPublicTable(query = "", filterStatus = "") {
-  const data = searchWP(query, "", filterStatus, 60);
-  const tbody = el("pub-table-body");
-
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--c-muted)">Data tidak ditemukan</td></tr>`;
+// ─── PUBLIC TABLE (PRIVACY-FOCUSED) ────────────────────────────
+function buildPublicTable(query = "") {
+  const resultDiv = el("pub-search-result");
+  
+  // Hanya tampilkan hasil jika query cukup panjang (minimal 5 karakter untuk NOP)
+  if (!query || query.length < 5) {
+    resultDiv.innerHTML = `<div style="text-align:center;padding:32px;color:var(--c-muted)">
+      <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+      <p>Masukkan NOP lengkap Anda untuk melihat status pembayaran PBB.</p>
+      <p style="font-size:.85rem;margin-top:8px"><em>Data nama dan detail hanya ditampilkan untuk pemilik NOP yang sah demi menjaga privasi.</em></p>
+    </div>`;
     return;
   }
 
-  tbody.innerHTML = data.map(w => {
-    const tunggakYears = TAHUN_LIST.filter(y => w.payments[y] === "tunggakan");
-    const tunggakStr   = tunggakYears.length
-      ? `<span style="color:var(--c-danger);font-size:.75rem">${tunggakYears.join(", ")}</span>`
-      : `<span style="color:var(--c-brand);font-size:.75rem">✓ Bersih</span>`;
-    return `<tr>
-      <td class="mono">${shortNOP(w.nop)}</td>
-      <td><strong>${w.nama}</strong></td>
-      <td><span style="font-size:.78rem">${w.dusun}<br>RW ${w.rw} / RT ${w.rt}</span></td>
-      <td>${statusBadge(w.payments[2024])}</td>
-      <td>${statusBadge(w.payments[2025])}</td>
-      <td>${statusBadge(w.payments[2026])}</td>
-      <td>${tunggakStr}</td>
-    </tr>`;
-  }).join("");
+  // Cari berdasarkan NOP saja
+  const wp = wpData.find(w => w.nop.toLowerCase().includes(query.toLowerCase()));
+  
+  if (!wp) {
+    resultDiv.innerHTML = `<div style="text-align:center;padding:32px;color:var(--c-muted)">
+      <div style="font-size:3rem;margin-bottom:16px">❌</div>
+      <p><strong>NOP tidak ditemukan</strong></p>
+      <p style="font-size:.85rem">Periksa kembali NOP Anda atau hubungi petugas desa untuk bantuan.</p>
+    </div>`;
+    return;
+  }
+
+  // Tampilkan data lengkap HANYA jika NOP cocok persis atau sangat mirip
+  const tunggakYears = TAHUN_LIST.filter(y => wp.payments[y] === "tunggakan");
+  const lunasYears = TAHUN_LIST.filter(y => wp.payments[y] === "lunas");
+  const pendingYears = TAHUN_LIST.filter(y => wp.payments[y] === "pending");
+  
+  resultDiv.innerHTML = `
+    <div style="background:var(--c-brand-pale);border-radius:var(--r-md);padding:20px;margin-top:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px">
+        <div>
+          <label style="font-size:.75rem;color:var(--c-text-sec)">NOP</label>
+          <div class="mono" style="font-weight:600">${wp.nop}</div>
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--c-text-sec)">Nama Wajib Pajak</label>
+          <div style="font-weight:600">${wp.nama}</div>
+        </div>
+        <div>
+          <label style="font-size:.75rem;color:var(--c-text-sec)">Wilayah</label>
+          <div>${wp.dusun} - RW ${wp.rw} / RT ${wp.rt}</div>
+        </div>
+      </div>
+      
+      <h4 style="margin-bottom:12px;font-size:.95rem">📋 Status Pembayaran per Tahun</h4>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
+        ${TAHUN_LIST.map(y => `
+          <div style="background:#fff;border-radius:var(--r-sm);padding:12px;text-align:center">
+            <div style="font-size:.75rem;color:var(--c-text-sec);margin-bottom:4px">${y}</div>
+            <div>${statusBadge(wp.payments[y])}</div>
+          </div>
+        `).join("")}
+      </div>
+      
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--c-border)">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+          <div style="background:#fff;border-radius:var(--r-sm);padding:12px">
+            <div style="font-size:.75rem;color:var(--c-text-sec)">Total Lunas</div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--c-brand)">${lunasYears.length} <span style="font-size:.85rem;font-weight:400">tahun</span></div>
+          </div>
+          <div style="background:#fff;border-radius:var(--r-sm);padding:12px">
+            <div style="font-size:.75rem;color:var(--c-text-sec)">Pending</div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--c-warn)">${pendingYears.length} <span style="font-size:.85rem;font-weight:400">tahun</span></div>
+          </div>
+          <div style="background:#fff;border-radius:var(--r-sm);padding:12px">
+            <div style="font-size:.75rem;color:var(--c-text-sec)">Tunggakan</div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--c-danger)">${tunggakYears.length} <span style="font-size:.85rem;font-weight:400">tahun</span></div>
+          </div>
+        </div>
+      </div>
+      
+      ${tunggakYears.length > 0 ? `
+        <div style="margin-top:16px;background:var(--c-danger-pale);border-radius:var(--r-sm);padding:12px">
+          <div style="color:var(--c-danger);font-size:.85rem"><strong>⚠️ Catatan:</strong> Anda memiliki tunggakan untuk tahun: ${tunggakYears.join(", ")}. Silakan segera melakukan pembayaran.</div>
+        </div>
+      ` : `
+        <div style="margin-top:16px;background:var(--c-brand-pale);border-radius:var(--r-sm);padding:12px">
+          <div style="color:var(--c-brand-dark);font-size:.85rem"><strong>✅ Selamat!</strong> Tidak ada tunggakan PBB. Terima kasih telah taat pajak.</div>
+        </div>
+      `}
+    </div>
+  `;
 }
 
 window.pubSearch = function() {
   const q = el("pub-search").value;
-  const s = el("pub-filter-status").value;
-  buildPublicTable(q, s);
+  buildPublicTable(q);
 };
 
 // ─── PUBLIC CHARTS ────────────────────────────────────────────
