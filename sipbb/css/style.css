@@ -641,3 +641,9 @@ tr:hover td { background: var(--c-brand-pale); }
   #navbar, .sidebar, #loading-screen, #toast-wrap { display: none !important; }
   .main-content { margin: 0; }
 }
+
+/* Tambahan untuk elemen baru */
+.bdg-rt { background: var(--c-brand-pale); color: var(--c-brand-mid); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+input[type="date"].form-input { padding: 8px 12px; font-family: inherit; }
+.toast { display: flex; align-items: center; gap: 10px; }
+.toast span:first-child { font-size: 1.1rem; }
